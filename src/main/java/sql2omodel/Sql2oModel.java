@@ -3,7 +3,10 @@ package sql2omodel;
 import dataobjects.Administrator;
 import dataobjects.Pet;
 import dataobjects.Model;
+import dataobjects.Province;
+import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
 import org.sql2o.Connection;
+import org.sql2o.Query;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 
@@ -18,7 +21,7 @@ public class Sql2oModel implements Model {
     }
 
     @Override
-    public int createAdmin(String username, String email, String password, int status) {
+    public int createAdmin(String username, String email, String password, boolean status) {
         try (Connection connection = sql2o.beginTransaction()){
             connection.createQuery("INSERT INTO Administrator(Username, Email, Password, Status) VALUES (:Username, :Email, :Password, :Status)")
                     .addParameter("Username", username)
@@ -35,19 +38,9 @@ public class Sql2oModel implements Model {
     @Override
     public List<Administrator> getAllAdmins() {
         try (Connection connection = sql2o.open()){
-            System.out.println("HERE");
-            //works
-            connection.createQuery("create table test_table(id int, test_col int)").executeUpdate();
-            System.out.println("HERE");
-            //method that fails
-            List<Administrator> results = connection.createQuery("SELECT * FROM Administrator")
-                    .executeAndFetch(Administrator.class);
-
-            System.out.println("HERE");
-            for(Administrator result : results){
-                System.out.println(result.getUsername());
-            }
-            return results;
+            Query query = connection.createQuery("SELECT * FROM Administrator");
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            return query.executeAndFetch(Administrator.class);
         }
         catch (Exception e){
             System.out.println("Error");

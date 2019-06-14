@@ -8,7 +8,16 @@ public class Administrator {
     private String Username;
     private String Email;
     private String Password;
-    private int Status;
+    private boolean Status;
+
+    public Administrator() {};
+    public Administrator(int IdAdministrator, String Username, String Email, String Password, boolean Status){
+        this.IdAdministrator = IdAdministrator;
+        this.Username = Username;
+        this.Email = Email;
+        this.Password = Password;
+        this.Status = Status;
+    }
 
     public int getIdAdministrator() {
         return IdAdministrator;
@@ -42,11 +51,11 @@ public class Administrator {
         Password = password;
     }
 
-    public int getStatus() {
+    public boolean getStatus() {
         return Status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(boolean status) {
         Status = status;
     }
 }

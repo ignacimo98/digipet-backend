@@ -15,10 +15,11 @@ public class Main {
 
 
         //inserts and admin
-        post("/Administrators", (request, response) -> {
+        post("/administrators", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
             Administrator creation = mapper.readValue(request.body(), Administrator.class);
 
+            //int id = model.createAdmin("user", "djaidjias", "sdada", 0);
             int id = model.createAdmin(creation.getUsername(), creation.getEmail(), creation.getPassword(), creation.getStatus());
             response.status(200);
             response.type("application/json");
@@ -26,7 +27,7 @@ public class Main {
         });
 
         //get all admins (using HTTP get method)
-        get("/Administrators", (request, response) -> {
+        get("/administrators", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
             response.status(200);
