@@ -9,5 +9,8 @@
         <module name="digipet-backend" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="digipet-backend" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
