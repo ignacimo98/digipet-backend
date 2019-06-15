@@ -1,10 +1,7 @@
 package dataobjects;
 
-import lombok.Data;
-
 import java.util.Date;
 
-@Data
 public class Pet {
     private int IdPet;
     private int IdPetOwner;
@@ -12,9 +9,9 @@ public class Pet {
     private int WalksQuantity;
     private Date InscriptionDate;
     private int Age;
-    private int Size;
+    private String Size;
     private String PetDescription;
-    private int Status;
+    private boolean Status;
 
     public int getIdPet() {
         return IdPet;
@@ -64,11 +61,11 @@ public class Pet {
         Age = age;
     }
 
-    public int getSize() {
+    public String getSize() {
         return Size;
     }
 
-    public void setSize(int size) {
+    public void setSize(String size) {
         Size = size;
     }
 
@@ -80,11 +77,11 @@ public class Pet {
         PetDescription = petDescription;
     }
 
-    public int getStatus() {
+    public boolean getStatus() {
         return Status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(boolean status) {
         Status = status;
     }
 }

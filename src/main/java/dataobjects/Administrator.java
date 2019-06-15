@@ -3,28 +3,18 @@ package dataobjects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.Data;
 import routing.ResponseCreator;
 import routing.CustomResponse;
 
 import java.io.IOException;
 
-@Data
+
 public class Administrator {
     private int IdAdministrator;
     private String Username;
     private String Email;
     private String Password;
     private boolean Status;
-
-    public Administrator() {};
-    public Administrator(int IdAdministrator, String Username, String Email, String Password, boolean Status){
-        this.IdAdministrator = IdAdministrator;
-        this.Username = Username;
-        this.Email = Email;
-        this.Password = Password;
-        this.Status = Status;
-    }
 
     public int getIdAdministrator() {
         return IdAdministrator;

@@ -20,18 +20,18 @@ public class Sql2oModel implements Model {
         this.sql2o = sql2o;
     }
 
+
     @Override
-    public int createAdmin(String username, String email, String password, boolean status) {
+    public int createAdmin(String Username, String Email, String Password, Boolean Status) {
         try (Connection connection = sql2o.beginTransaction()){
             connection.createQuery("INSERT INTO Administrator(Username, Email, Password, Status) VALUES (:Username, :Email, :Password, :Status)")
-                    .addParameter("Username", username)
-                    .addParameter("Email", email)
-                    .addParameter("Password", password)
-                    .addParameter("Status", status)
+                    .addParameter("Username", Username)
+                    .addParameter("Email", Email)
+                    .addParameter("Password", Password)
+                    .addParameter("Status", Status)
                     .executeUpdate();
             connection.commit();
         }
-
         return 0;
     }
 
@@ -41,6 +41,20 @@ public class Sql2oModel implements Model {
             Query query = connection.createQuery("SELECT * FROM Administrator");
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
             return query.executeAndFetch(Administrator.class);
+        }
+        catch (Exception e){
+            System.out.println("Error");
+            throw e;
+        }
+    }
+
+    @Override
+    public List getAllPetsFromOwner(int IdPetOwner) {
+        try (Connection connection = sql2o.open()){
+            Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPetOwner = :IdPetOwner");
+            query.addParameter("IdPetOwner", IdPetOwner);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            return query.executeAndFetch(Pet.class);
         }
         catch (Exception e){
             System.out.println("Error");
