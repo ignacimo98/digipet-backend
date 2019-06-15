@@ -1,10 +1,7 @@
 package routing;
 
 import dataobjects.Model;
-import routing.subroutes.AdminRouteHandler;
-import routing.subroutes.ClientRouteHandler;
-import routing.subroutes.GenericRouteHandler;
-import routing.subroutes.PetRouteHandler;
+import routing.subroutes.*;
 
 import java.util.ArrayList;
 
@@ -21,6 +18,7 @@ public class Application {
         routeHandlers.add(new AdminRouteHandler(model));
         routeHandlers.add(new PetRouteHandler(model));
         routeHandlers.add(new ClientRouteHandler(model));
+        routeHandlers.add(new LoginRouteHandler(model));
 
 
     }
