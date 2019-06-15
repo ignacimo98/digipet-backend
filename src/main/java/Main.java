@@ -1,8 +1,13 @@
 import dataobjects.Administrator;
 import dataobjects.Model;
 import org.sql2o.Sql2o;
+import routing.Application;
+import routing.ResponseCreator;
 import sql2omodel.Sql2oModel;
 import com.fasterxml.jackson.databind.*;
+import spark.Route;
+import spark.Request;
+import spark.Response;
 
 import static spark.Spark.*;
 
@@ -12,6 +17,9 @@ public class Main {
 
         Sql2o sql2o = new Sql2o("jdbc:mysql://35.222.98.163:3306/DigiPet", "root", "digipet12345");
         Model model = new Sql2oModel(sql2o);
+
+        Application app = new Application(model);
+        app.init();
 
 
         //inserts and admin
@@ -37,6 +45,8 @@ public class Main {
             System.out.println(jsonString);
             return jsonString;
         });
+
     }
+
 }
 
