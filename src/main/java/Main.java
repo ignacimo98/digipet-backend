@@ -35,18 +35,18 @@ public class Main {
             return jsonString;
         });
 
-        //get all pets from client (using HTTP get method)
-        get("/pets/:id", (request, response) -> {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            int IdPet = Integer.parseInt(request.params(":id"));
-            response.status(200);
-            response.type("application/json");
-            String jsonString = mapper.writeValueAsString(model.getPetFromId(IdPet));
-
-            System.out.println(jsonString);
-            return jsonString;
-        });
+//        //get all pets from client (using HTTP get method)
+//        get("/pets/:id", (request, response) -> {
+//            ObjectMapper mapper = new ObjectMapper();
+//            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+//            int IdPet = Integer.parseInt(request.params(":id"));
+//            response.status(200);
+//            response.type("application/json");
+//            String jsonString = mapper.writeValueAsString(model.getPetFromId(IdPet));
+//
+//            System.out.println(jsonString);
+//            return jsonString;
+//        });
 
 
 

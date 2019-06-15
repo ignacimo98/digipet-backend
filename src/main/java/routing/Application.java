@@ -1,21 +1,33 @@
 package routing;
 
 import dataobjects.Model;
-import routing.subroutes.AdminRoutesHandler;
+import routing.subroutes.AdminRouteHandler;
+import routing.subroutes.ClientRouteHandler;
+import routing.subroutes.GenericRouteHandler;
+import routing.subroutes.PetRouteHandler;
+
+import java.util.ArrayList;
 
 
 public class Application {
 
     private final Model model;
-    private AdminRoutesHandler adminRoutesHandler;
+    private ArrayList<GenericRouteHandler> routeHandlers;
+    private AdminRouteHandler adminRouteHandler;
 
     public Application(Model model) {
         this.model = model;
-        adminRoutesHandler = new AdminRoutesHandler(model);
+        routeHandlers = new ArrayList<>();
+        routeHandlers.add(new AdminRouteHandler(model));
+        routeHandlers.add(new PetRouteHandler(model));
+        routeHandlers.add(new ClientRouteHandler(model));
+
+
     }
 
     public void init(){
-        adminRoutesHandler.init();
+        for (GenericRouteHandler routeHandler: routeHandlers) {
+            routeHandler.init();
+        }
     }
-
 }
