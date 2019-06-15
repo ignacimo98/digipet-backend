@@ -11,7 +11,6 @@ public class PetHandler {
     public static ResponseCreator getPet(Model model, int id) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
         try {
             return CustomResponse.ok(mapper.writeValueAsString(model.getPetFromId(id)));
         } catch (JsonProcessingException e) {
