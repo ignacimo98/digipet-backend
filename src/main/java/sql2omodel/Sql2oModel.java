@@ -1,5 +1,7 @@
 package sql2omodel;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Administrator;
 import dataobjects.Pet;
 import dataobjects.Model;
@@ -161,9 +163,13 @@ public class Sql2oModel implements Model {
             throw new Exception("Usuario no encontrado.");
         }
 
-        JsonString = "{'id': " + IdClient + ", 'type': " + ClientType + "}";
-        System.out.println(JsonString);
-        return JsonString;
+        ObjectMapper jsonObject = new ObjectMapper();
+        ObjectNode objectNode = jsonObject.createObjectNode();
+        objectNode.put("id",IdClient);
+        objectNode.put("type",ClientType);
+
+        System.out.println(objectNode.toString());
+        return objectNode.toString();
 
     }
 

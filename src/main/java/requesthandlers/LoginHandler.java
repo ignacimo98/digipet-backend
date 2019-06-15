@@ -16,8 +16,7 @@ public class LoginHandler {
             jsonString = model.getClientIdType(Email, Password);
             return CustomResponse.ok(jsonString);
         } catch (Exception e) {
-            e.printStackTrace();
-            return CustomResponse.error(e.getMessage(), 401);
+            return CustomResponse.error(401, e.getMessage());
         }
     }
 }
