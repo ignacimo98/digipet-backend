@@ -37,6 +37,21 @@ public class Main {
             System.out.println(jsonString);
             return jsonString;
         });
+
+        //get all pets from client (using HTTP get method)
+        get("/clients/:id/pets", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            int IdPetOwner = Integer.parseInt(request.params(":id"));
+            response.status(200);
+            response.type("application/json");
+            String jsonString = mapper.writeValueAsString(model.getAllPetsFromOwner(IdPetOwner));
+
+            System.out.println(jsonString);
+            return jsonString;
+        });
+
+
     }
 }
 
