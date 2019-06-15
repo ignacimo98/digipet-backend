@@ -21,6 +21,7 @@ public class Main {
         Application app = new Application(model);
         app.init();
 
+
         //get all pets from client (using HTTP get method)
         get("/clients/:id/pets", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
