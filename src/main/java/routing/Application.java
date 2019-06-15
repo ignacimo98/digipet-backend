@@ -2,6 +2,7 @@ package routing;
 
 import dataobjects.Administrator;
 import dataobjects.Model;
+import requesthandlers.AdministratorHandler;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -20,8 +21,9 @@ public class Application implements SparkApplication {
 
     @Override
     public void init() {
-        get("/admins", map((req, res)-> Administrator.getAllAdmins(model)));
-        post("/administrators", map((req, res)-> Administrator.insertAdmin(model, req.body())));
+        get("/admins", map((req, res)-> AdministratorHandler.getAllAdmins(model)));
+        post("/admins", map((req, res)-> AdministratorHandler.insertAdmin(model, req.body())));
+
 
     }
 
