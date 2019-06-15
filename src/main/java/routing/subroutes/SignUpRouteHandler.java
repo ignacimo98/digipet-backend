@@ -2,6 +2,7 @@ package routing.subroutes;
 
 import dataobjects.Model;
 import requesthandlers.AdministratorHandler;
+import requesthandlers.SignUpHandler;
 
 import static spark.Spark.*;
 
@@ -16,8 +17,9 @@ public class SignUpRouteHandler extends GenericRouteHandler {
     @Override
     public void init() {
         path("/signup", () -> {
-            //get("/client", map((req, res) -> SignUpHandler.insertPetOwner(model)));
-            //post("/student", map((req, res) -> SignUpHandler.insertCaregiver(model)));
+            post("/clients", map((req, res) -> SignUpHandler.insertPetOwner(model, req.body())));
+
+            //post("/student", map((req, res) -> SignUpHandler.insertCaregiver(model,req.body())));
 
         });
 

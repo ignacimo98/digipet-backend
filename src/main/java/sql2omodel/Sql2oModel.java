@@ -13,6 +13,7 @@ import org.sql2o.Query;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -171,6 +172,42 @@ public class Sql2oModel implements Model {
         System.out.println(objectNode.toString());
         return objectNode.toString();
 
+    }
+
+    @Override
+    public String insertPetOwner(int IdProvince, int IdCanton, String Name, String LastName, String Email1,
+                                 String Email2, int Phone, String Photo, Date InscriptionDate, String PersonalDescription,
+                                 String Password) throws Exception{
+
+        try (Connection connection = sql2o.beginTransaction()){
+            Query query = connection.createQuery("INSERT INTO PetOwner(IdProvince, IdCanton, Name, LastName, " +
+                    "Email1, Email2, Phone, InscriptionDate, PersonalDescription) VALUES (:IdProvince, :IdCanton, :Name, " +
+                    ":LastName, :Email1, :Email2, :Phone, :InscriptionDate, :PersonalDescription)");
+            query.addParameter("IdProvince", IdProvince);
+            query.addParameter("IdCanton", IdCanton);
+            query.addParameter("Name", Name);
+            query.addParameter("LastName", LastName);
+            query.addParameter("Email1", Email1);
+            query.addParameter("Email2", Email2);
+            query.addParameter("Phone", Phone);
+            query.addParameter("Photo", Photo);
+            query.addParameter("InscriptionDate", InscriptionDate);
+            query.addParameter("PersonalDescription", PersonalDescription);
+            query.addParameter("Password", BCrypt.hashpw(Password, BCrypt.gensalt()));
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status","OK");
+            System.out.println(objectNode.toString());
+            return objectNode.toString();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Error en inserción en base de datos.");
+        }
     }
 
 }

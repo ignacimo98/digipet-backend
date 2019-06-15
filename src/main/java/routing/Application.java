@@ -20,6 +20,7 @@ public class Application {
         routeHandlers.add(new PetRouteHandler(model));
         routeHandlers.add(new ClientRouteHandler(model));
         routeHandlers.add(new LoginRouteHandler(model));
+        routeHandlers.add(new SignUpRouteHandler(model));
 
 
     }
