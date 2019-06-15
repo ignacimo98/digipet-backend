@@ -7,4 +7,5 @@ public interface Model {
 
     List getAllAdmins();
     List getAllPetsFromOwner(int IdPetOwner);
+    List getPetFromId(int IdPet);
 }

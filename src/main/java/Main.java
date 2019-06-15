@@ -21,31 +21,6 @@ public class Main {
         Application app = new Application(model);
         app.init();
 
-
-        //inserts and admin
-        post("/administrators", (request, response) -> {
-            ObjectMapper mapper = new ObjectMapper();
-            Administrator creation = mapper.readValue(request.body(), Administrator.class);
-
-            //int id = model.createAdmin("user", "djaidjias", "sdada", 0);
-            int id = model.createAdmin(creation.getUsername(), creation.getEmail(), creation.getPassword(), creation.getStatus());
-            response.status(200);
-            response.type("application/json");
-            return id;
-        });
-
-        //get all admins (using HTTP get method)
-        get("/administrators", (request, response) -> {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            response.status(200);
-            response.type("application/json");
-            String jsonString = mapper.writeValueAsString(model.getAllAdmins());
-
-            System.out.println(jsonString);
-            return jsonString;
-        });
-
         //get all pets from client (using HTTP get method)
         get("/clients/:id/pets", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
@@ -54,6 +29,19 @@ public class Main {
             response.status(200);
             response.type("application/json");
             String jsonString = mapper.writeValueAsString(model.getAllPetsFromOwner(IdPetOwner));
+
+            System.out.println(jsonString);
+            return jsonString;
+        });
+
+        //get all pets from client (using HTTP get method)
+        get("/pets/:id", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            int IdPet = Integer.parseInt(request.params(":id"));
+            response.status(200);
+            response.type("application/json");
+            String jsonString = mapper.writeValueAsString(model.getPetFromId(IdPet));
 
             System.out.println(jsonString);
             return jsonString;

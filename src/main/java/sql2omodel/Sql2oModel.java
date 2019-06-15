@@ -61,4 +61,18 @@ public class Sql2oModel implements Model {
             throw e;
         }
     }
+
+    @Override
+    public List getPetFromId(int IdPet) {
+        try (Connection connection = sql2o.open()){
+            Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPet = :IdPet");
+            query.addParameter("IdPet", IdPet);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            return query.executeAndFetch(Pet.class);
+        }
+        catch (Exception e){
+            System.out.println("Error");
+            throw e;
+        }
+    }
 }

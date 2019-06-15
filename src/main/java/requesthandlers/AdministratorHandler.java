@@ -38,7 +38,6 @@ public class AdministratorHandler {
             e.printStackTrace();
         }
 
-        //int id = model.createAdmin("user", "djaidjias", "sdada", 0);
         int id = model.createAdmin(creation.getUsername(), creation.getEmail(), creation.getPassword(), creation.getStatus());
         return CustomResponse.ok(id);
     }
