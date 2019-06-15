@@ -14,6 +14,7 @@ public class Application {
 
     public Application(Model model) {
         this.model = model;
+        CorsFilter.apply();
         routeHandlers = new ArrayList<>();
         routeHandlers.add(new AdminRouteHandler(model));
         routeHandlers.add(new PetRouteHandler(model));
