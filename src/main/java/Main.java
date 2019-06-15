@@ -21,7 +21,6 @@ public class Main {
         Application app = new Application(model);
         app.init();
 
-
         //inserts and admin
         post("/administrators", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
