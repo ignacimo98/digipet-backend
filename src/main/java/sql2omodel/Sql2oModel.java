@@ -1,5 +1,6 @@
 package sql2omodel;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
@@ -10,6 +11,7 @@ import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
+import routing.Token;
 
 import javax.swing.text.html.parser.Entity;
 import java.sql.Date;
@@ -18,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TooManyListenersException;
 
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
@@ -221,7 +224,7 @@ public class Sql2oModel implements Model {
 
 
     @Override
-    public List getClientIdType(String LoginData, String Password) throws Exception{
+    public String getClientIdType(String LoginData, String Password) throws Exception{
         Connection connection = sql2o.open();
         int IsPetOwner = 0;
         int IsCaregiver = 0;
@@ -304,17 +307,18 @@ public class Sql2oModel implements Model {
             throw new Exception("Usuario no encontrado.");
         }
 
-        List<String> result = new ArrayList<>();
-        result.add(Integer.toString(IdClient));
-        result.add(ClientType);
+        ObjectMapper jsonObject = new ObjectMapper();
+        ObjectNode objectNode = jsonObject.createObjectNode();
+        objectNode.put("id", IdClient);
+        objectNode.put("type", ClientType);
+        objectNode.put("token", Token.generateToken(IdClient, ClientType));
 
-        System.out.println(result);
-        return result;
+        return objectNode.toString();
 
     }
 
     @Override
-    public String insertCaregiver(int IdStudent, int IdUniversity, int IdProvince, int IdCanton, String Name,
+    public String insertCaregiver(String IdStudent, int IdUniversity, int IdProvince, int IdCanton, String Name,
                                   String LastName, String Email1, String Email2, String Photo, String PersonalDescription,
                                   int Phone, boolean WorksInOtherProvince, String Password, List<Integer> OtherProvincesId)
                                   throws Exception{
@@ -364,14 +368,19 @@ public class Sql2oModel implements Model {
                 }
             }
 
+            int IdCaregiver = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE IdStudent = :IdStudent")
+                    .addParameter("IdStudent", IdStudent).executeScalar(Integer.class);
+
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
-            objectNode.put("status", "OK");
-            System.out.println(objectNode.toString());
+            objectNode.put("id", IdCaregiver);
+            objectNode.put("type", "Student");
+            objectNode.put("token", Token.generateToken(IdCaregiver, "Student"));
+
             return objectNode.toString();
         }
         else{
-            throw new Exception("Ya existe un usuario con este email. Por favor intente con otro.");
+            throw new Exception("Ya existe un usuario con este carné. Por favor intente con otro.");
 
         }
     }
@@ -408,10 +417,15 @@ public class Sql2oModel implements Model {
             query.executeUpdate();
             connection.commit();
 
+            int IdPetOwner = connection.createQuery("SELECT IdPetOwner FROM PetOwner WHERE Email1 = :Email1")
+                .addParameter("Email1", Email1).executeScalar(Integer.class);
+
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
-            objectNode.put("status", "OK");
-            System.out.println(objectNode.toString());
+            objectNode.put("id", IdPetOwner);
+            objectNode.put("type", "Client");
+            objectNode.put("token", Token.generateToken(IdPetOwner, "Client"));
+
             return objectNode.toString();
         }
         else{

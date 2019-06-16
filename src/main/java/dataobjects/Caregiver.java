@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Caregiver {
     private int IdCaregiver;
-    private int IdStudent;
+    private String IdStudent;
     private int IdUniversity;
     private int IdProvince;
     private int IdCanton;
@@ -32,11 +32,11 @@ public class Caregiver {
         IdCaregiver = idCaregiver;
     }
 
-    public int getIdStudent() {
+    public String getIdStudent() {
         return IdStudent;
     }
 
-    public void setIdStudent(int idStudent) {
+    public void setIdStudent(String idStudent) {
         IdStudent = idStudent;
     }
 
