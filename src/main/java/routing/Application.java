@@ -22,6 +22,8 @@ public class Application {
         routeHandlers.add(new ClientRouteHandler(model));
         routeHandlers.add(new LoginRouteHandler(model));
         routeHandlers.add(new SignUpRouteHandler(model));
+        routeHandlers.add(new StudentRouteHandler(model));
+        routeHandlers.add(new ServiceRouteHandler(model));
 
 
     }

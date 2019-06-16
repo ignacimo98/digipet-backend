@@ -8,8 +8,8 @@ public interface Model {
 
     List getAllAdmins();
     List getAllPetsFromOwner(int IdPetOwner);
-    List getPetFromId(int IdPet);
-    String getClientIdType(String LoginData, String Password) throws Exception;
+
+    List getClientIdType(String LoginData, String Password) throws Exception;
     String insertCaregiver(int IdStudent, int IdUniversity, int IdProvince, int IdCanton,
                            String Name, String LastName, String Email1, String Email2,
                            String Photo, String PersonalDescription, int Phone, boolean WorksInOtherProvince,
@@ -19,5 +19,18 @@ public interface Model {
                           String Email1, String Email2, int Phone, String Photo,
                           String PersonalDescription, String Password) throws Exception;
 
-    int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location);
+
+    String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks);
+
+    String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments,
+                         String PickUpLocation);
+
+    int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location);
+
+
+    PetOwner getPetOwnerFromId(int IdPetOwner) throws Exception;
+    Pet getPetFromId(int IdPet) throws Exception;
+    Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;
+    WalkService getServiceFromId(int IdWalkService) throws Exception;
+
 }
