@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import dataobjects.Model;
+import dataobjects.Pet;
+import dataobjects.PetOwner;
 import routing.CustomResponse;
 import routing.ResponseCreator;
 
@@ -16,6 +18,21 @@ public class PetHandler {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return CustomResponse.badRequest(e.toString());
+        }
+    }
+
+    public static ResponseCreator insertPet(Model model, String requestBody){
+        ObjectMapper mapper = new ObjectMapper();
+
+        Pet creation = null;
+        try {
+            creation = mapper.readValue(requestBody, Pet.class);
+            String jsonString = model.insertPet(creation.getIdPetOwner(), creation.getName(), creation.getAge(),
+                    creation.getSize(), creation.getPetDescription(), creation.getPhotoLinks());
+            return CustomResponse.ok(jsonString);
+
+        } catch (Exception e) {
+            return CustomResponse.error(402, e.getMessage());
         }
     }
 }

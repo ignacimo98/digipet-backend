@@ -30,7 +30,8 @@ public class Sql2oModel implements Model {
     @Override
     public int createAdmin(String Username, String Email, String Password, Boolean Status) {
         try (Connection connection = sql2o.beginTransaction()){
-            connection.createQuery("INSERT INTO Administrator(Username, Email, Password, Status) VALUES (:Username, :Email, :Password, :Status)")
+            connection.createQuery("INSERT INTO Administrator(Username, Email, Password, Status) " +
+                    "VALUES (:Username, :Email, :Password, :Status)")
                     .addParameter("Username", Username)
                     .addParameter("Email", Email)
                     .addParameter("Password", BCrypt.hashpw(Password, BCrypt.gensalt()))
@@ -281,6 +282,37 @@ public class Sql2oModel implements Model {
             throw new Exception("Ya existe un usuario con este email. Por favor intente con otro.");
         }
 
+    }
+
+    @Override
+    public String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks) {
+        try {
+            Connection connection = sql2o.beginTransaction();
+            Query query = connection.createQuery("INSERT INTO Pet(IdPetOwner, Name, Age, " +
+                    "Size, PetDescription, InscriptionDate) VALUES (:IdPetOwner, :Name, :Age, :Size, :PetDescription, " +
+                    ":InscriptionDate)");
+
+            query.addParameter("IdPetOwner", IdPetOwner);
+            query.addParameter("Name", Name);
+            query.addParameter("Age", Age);
+            query.addParameter("Size", Size);
+            query.addParameter("PetDescription", PetDescription);
+            java.sql.Date InscriptionDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            query.addParameter("InscriptionDate",InscriptionDate);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.toString());
+            return objectNode.toString();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

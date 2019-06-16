@@ -1,6 +1,7 @@
 package dataobjects;
 
 import java.util.Date;
+import java.util.List;
 
 public class Pet {
     private int IdPet;
@@ -12,6 +13,7 @@ public class Pet {
     private String Size;
     private String PetDescription;
     private boolean Status;
+    private List PhotoLinks;
 
     public int getIdPet() {
         return IdPet;
@@ -83,5 +85,13 @@ public class Pet {
 
     public void setStatus(boolean status) {
         Status = status;
+    }
+
+    public List getPhotoLinks() {
+        return PhotoLinks;
+    }
+
+    public void setPhotoLinks(List photoLinks) {
+        PhotoLinks = photoLinks;
     }
 }
