@@ -21,13 +21,13 @@ public class PetHandler {
         }
     }
 
-    public static ResponseCreator insertPet(Model model, String requestBody){
+    public static ResponseCreator insertPet(Model model, String requestBody, int IdPetOwner){
         ObjectMapper mapper = new ObjectMapper();
 
         Pet creation = null;
         try {
             creation = mapper.readValue(requestBody, Pet.class);
-            String jsonString = model.insertPet(creation.getIdPetOwner(), creation.getName(), creation.getAge(),
+            String jsonString = model.insertPet(IdPetOwner, creation.getName(), creation.getAge(),
                     creation.getSize(), creation.getPetDescription(), creation.getPhotoLinks());
             return CustomResponse.ok(jsonString);
 
