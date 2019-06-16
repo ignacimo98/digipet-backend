@@ -28,6 +28,7 @@ public class Application {
 
     public void init(){
         CorsFilter.apply();
+        TokenFilter.apply();
         options("*", (req, res) -> "{}");
         for (GenericRouteHandler routeHandler: routeHandlers) {
             routeHandler.init();
