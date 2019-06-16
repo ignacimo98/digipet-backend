@@ -31,5 +31,6 @@ public interface Model {
     PetOwner getPetOwnerFromId(int IdPetOwner) throws Exception;
     Pet getPetFromId(int IdPet) throws Exception;
     Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;
+    WalkService getServiceFromId(int IdWalkService) throws Exception;
 
 }

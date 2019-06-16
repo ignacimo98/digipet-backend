@@ -1,6 +1,7 @@
 package requesthandlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import dataobjects.Model;
 import dataobjects.PetOwner;
 import dataobjects.WalkService;
@@ -8,6 +9,17 @@ import routing.CustomResponse;
 import routing.ResponseCreator;
 
 public class ServiceHandler {
+
+    public static ResponseCreator getService(Model model, int id) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return CustomResponse.ok(mapper.writeValueAsString(model.getServiceFromId(id)));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
     public static ResponseCreator insertService(Model model, String requestBody){
         ObjectMapper mapper = new ObjectMapper();
 

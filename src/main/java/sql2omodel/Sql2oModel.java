@@ -128,6 +128,25 @@ public class Sql2oModel implements Model {
     }
 
     @Override
+    public WalkService getServiceFromId(int IdWalkService) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM WalkService WHERE IdWalkService = :IdWalkService");
+        query.addParameter("IdWalkService", IdWalkService);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<WalkService> walkService = query.executeAndFetch(WalkService.class);
+
+        if(!walkService.isEmpty()){
+            return walkService.get(0);
+        }
+        else{
+            throw new Exception("Servicio no encontrado.");
+        }
+    }
+
+
+
+    @Override
     public String getClientIdType(String LoginData, String Password) throws Exception{
         Connection connection = sql2o.open();
         int IsPetOwner = 0;
