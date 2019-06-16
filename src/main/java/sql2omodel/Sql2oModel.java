@@ -2,6 +2,7 @@ package sql2omodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import dataobjects.Administrator;
 import dataobjects.Pet;
 import dataobjects.Model;
@@ -175,14 +176,36 @@ public class Sql2oModel implements Model {
     }
 
     @Override
+    public String insertCaregiver(int IdStudent, int IdUniversity, int IdProvince, int IdCanton, String Name,
+                                  String LastName, String Email1, String Email2, String Photo, Date InscriptionDate,
+                                  String PersonalDescription, int Phone, boolean WorksInOtherProvince, String Password,
+                                  List OtherProvincesId) {
+
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdCaregiver) FROM Caregiver WHERE IdStudent = :IdStudent");
+        query.addParameter("IdStudent", IdStudent);
+        int existsCaregiver = query.executeScalar(Integer.class);
+
+        return null;
+
+    }
+
+    @Override
     public String insertPetOwner(int IdProvince, int IdCanton, String Name, String LastName, String Email1,
                                  String Email2, int Phone, String Photo, Date InscriptionDate, String PersonalDescription,
                                  String Password) throws Exception{
 
-        try (Connection connection = sql2o.beginTransaction()){
-            Query query = connection.createQuery("INSERT INTO PetOwner(IdProvince, IdCanton, Name, LastName, " +
-                    "Email1, Email2, Phone, InscriptionDate, PersonalDescription) VALUES (:IdProvince, :IdCanton, :Name, " +
-                    ":LastName, :Email1, :Email2, :Phone, :InscriptionDate, :PersonalDescription)");
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdPetOwner) FROM PetOwner WHERE Email1 = :Email1");
+        query.addParameter("Email1", Email1);
+        int existsPetOwner = query.executeScalar(Integer.class);
+
+        if(existsPetOwner == 0) {
+
+            query = connection.createQuery("INSERT INTO PetOwner(IdProvince, IdCanton, Name, LastName, " +
+                    "Email1, Email2, Phone, Photo, InscriptionDate, PersonalDescription, Password) VALUES (:IdProvince, " +
+                    ":IdCanton, :Name, :LastName, :Email1, :Email2, :Phone, :Photo, :InscriptionDate, :PersonalDescription, :Password)");
+
             query.addParameter("IdProvince", IdProvince);
             query.addParameter("IdCanton", IdCanton);
             query.addParameter("Name", Name);
@@ -200,14 +223,14 @@ public class Sql2oModel implements Model {
 
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
-            objectNode.put("status","OK");
+            objectNode.put("status", "OK");
             System.out.println(objectNode.toString());
             return objectNode.toString();
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Error en inserción en base de datos.");
+        else{
+            throw new Exception("Ya existe un usuario con este email. Por favor intente con otro.");
         }
+
     }
 
 }
