@@ -22,7 +22,7 @@ public class SignUpHandler {
             creation = mapper.readValue(requestBody, PetOwner.class);
             String jsonString = model.insertPetOwner(creation.getIdProvince(), creation.getIdCanton(), creation.getName(), creation.getLastName(),
                                 creation.getEmail1(), creation.getEmail2(), creation.getPhone(), creation.getPhoto(),
-                                creation.getInscriptionDate(), creation.getPersonalDescription(), creation.getPassword());
+                                creation.getPersonalDescription(), creation.getPassword());
             return CustomResponse.ok(jsonString);
 
         } catch (Exception e) {
@@ -37,7 +37,7 @@ public class SignUpHandler {
             creation = mapper.readValue(requestBody, Caregiver.class);
             String jsonString = model.insertCaregiver(creation.getIdStudent(), creation.getIdUniversity(), creation.getIdProvince(),
                     creation.getIdCanton(), creation.getName(), creation.getLastName(), creation.getEmail1(), creation.getEmail2(),
-                    creation.getPhoto(), creation.getInscriptionDate(), creation.getPersonalDescription(), creation.getPhone(),
+                    creation.getPhoto(), creation.getPersonalDescription(), creation.getPhone(),
                     creation.getWorksInOtherProvince(), creation.getPassword(), creation.getOtherProvincesId());
             return CustomResponse.ok(jsonString);
 

@@ -19,7 +19,7 @@ public class SignUpRouteHandler extends GenericRouteHandler {
         path("/signup", () -> {
             post("/clients", map((req, res) -> SignUpHandler.insertPetOwner(model, req.body())));
 
-            post("/student", map((req, res) -> SignUpHandler.insertCaregiver(model,req.body())));
+            post("/students", map((req, res) -> SignUpHandler.insertCaregiver(model,req.body())));
 
         });
 

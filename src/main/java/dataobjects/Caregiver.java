@@ -21,7 +21,7 @@ public class Caregiver {
     private float WalksQualification;
     private boolean WorksInOtherProvince;
     private String Password;
-    private boolean Status;
+    private int Status;
     private List OtherProvincesId;
 
     public int getIdCaregiver() {
@@ -160,11 +160,11 @@ public class Caregiver {
         Password = password;
     }
 
-    public boolean isStatus() {
+    public int isStatus() {
         return Status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         Status = status;
     }
 

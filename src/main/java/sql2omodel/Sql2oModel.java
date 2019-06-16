@@ -16,6 +16,7 @@ import org.sql2o.Sql2oException;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 public class Sql2oModel implements Model {
@@ -177,22 +178,70 @@ public class Sql2oModel implements Model {
 
     @Override
     public String insertCaregiver(int IdStudent, int IdUniversity, int IdProvince, int IdCanton, String Name,
-                                  String LastName, String Email1, String Email2, String Photo, Date InscriptionDate,
-                                  String PersonalDescription, int Phone, boolean WorksInOtherProvince, String Password,
-                                  List OtherProvincesId) {
+                                  String LastName, String Email1, String Email2, String Photo, String PersonalDescription,
+                                  int Phone, boolean WorksInOtherProvince, String Password, List<Integer> OtherProvincesId)
+                                  throws Exception{
+
 
         Connection connection = sql2o.beginTransaction();
         Query query = connection.createQuery("SELECT COUNT(IdCaregiver) FROM Caregiver WHERE IdStudent = :IdStudent");
         query.addParameter("IdStudent", IdStudent);
         int existsCaregiver = query.executeScalar(Integer.class);
 
-        return null;
+        if(existsCaregiver == 0){
+            query = connection.createQuery("INSERT INTO Caregiver(IdStudent, IdUniversity, IdProvince, IdCanton, Name," +
+                    "LastName, Email1, Email2, Photo, InscriptionDate, PersonalDescription, Phone, WorksInOtherProvince, Password) " +
+                    "VALUES (:IdStudent, :IdUniversity, :IdProvince, :IdCanton, :Name, :LastName, :Email1, :Email2, :Photo," +
+                    ":InscriptionDate, :PersonalDescription, :Phone, :WorksInOtherProvince, :Password)");
 
+            query.addParameter("IdStudent", IdStudent);
+            query.addParameter("IdUniversity", IdUniversity);
+            query.addParameter("IdProvince", IdProvince);
+            query.addParameter("IdCanton", IdCanton);
+            query.addParameter("Name", Name);
+            query.addParameter("LastName", LastName);
+            query.addParameter("Email1", Email1);
+            query.addParameter("Email2", Email2);
+            query.addParameter("Photo", Photo);
+            java.sql.Date InscriptionDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            query.addParameter("InscriptionDate",InscriptionDate);
+            query.addParameter("PersonalDescription", PersonalDescription);
+            query.addParameter("Phone", Phone);
+            query.addParameter("WorksInOtherProvince", WorksInOtherProvince);
+            query.addParameter("Password", BCrypt.hashpw(Password, BCrypt.gensalt()));
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+            connection.commit();
+
+            int idCaregiver = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE IdStudent = :IdStudent")
+                    .addParameter("IdStudent", IdStudent).executeScalar(Integer.class);
+
+
+            if(WorksInOtherProvince) {
+                for (int id : OtherProvincesId) {
+                    query = connection.createQuery("INSERT INTO ProvinceXCaregiver(IdCaregiver, IdProvince) " +
+                            "VALUES(:IdCaregiver, :IdProvince)");
+                    query.addParameter("IdCaregiver", idCaregiver);
+                    query.addParameter("IdProvince", id);
+                    query.executeUpdate();
+                }
+            }
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.toString());
+            return objectNode.toString();
+        }
+        else{
+            throw new Exception("Ya existe un usuario con este email. Por favor intente con otro.");
+
+        }
     }
 
     @Override
     public String insertPetOwner(int IdProvince, int IdCanton, String Name, String LastName, String Email1,
-                                 String Email2, int Phone, String Photo, Date InscriptionDate, String PersonalDescription,
+                                 String Email2, int Phone, String Photo, String PersonalDescription,
                                  String Password) throws Exception{
 
         Connection connection = sql2o.beginTransaction();
@@ -214,7 +263,8 @@ public class Sql2oModel implements Model {
             query.addParameter("Email2", Email2);
             query.addParameter("Phone", Phone);
             query.addParameter("Photo", Photo);
-            query.addParameter("InscriptionDate", InscriptionDate);
+            java.sql.Date InscriptionDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            query.addParameter("InscriptionDate",InscriptionDate);
             query.addParameter("PersonalDescription", PersonalDescription);
             query.addParameter("Password", BCrypt.hashpw(Password, BCrypt.gensalt()));
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
