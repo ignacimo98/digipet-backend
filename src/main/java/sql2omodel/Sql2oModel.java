@@ -11,8 +11,10 @@ import org.sql2o.Query;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 
+import javax.swing.text.html.parser.Entity;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -368,6 +370,45 @@ public class Sql2oModel implements Model {
             return null;
         }
 
+    }
+
+    @Override
+    public String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments, String PickUpLocation) {
+        try {
+            Connection connection = sql2o.beginTransaction();
+            int price = connection.createQuery("SELECT Value FROM Configuration WHERE Description = :Description")
+                        .addParameter("Description", "Precio")
+                        .executeScalar(Integer.class);
+
+            Query query = connection.createQuery("INSERT INTO WalkService(IdPet, IdCaregiver, StartTime, " +
+                    "EndTime, Price, OwnerComments, PickUpLocation) VALUES (:IdPet, :IdCaregiver, :StartTime, :EndTime, " +
+                    ":Price, :OwnerComments, :PickUpLocation)");
+
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            long totalPrice = (formatter.parse(EndTime).getTime() - formatter.parse(StartTime) .getTime())/(1000*60*60) * 2 * price;
+
+            query.addParameter("IdPet", IdPet);
+            query.addParameter("IdCaregiver", IdCaregiver);
+            query.addParameter("StartTime", StartTime);
+            query.addParameter("EndTime", EndTime);
+            query.addParameter("Price", totalPrice);
+            query.addParameter("OwnerComments", OwnerComments);
+            query.addParameter("PickUpLocation", PickUpLocation);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.toString());
+            return objectNode.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

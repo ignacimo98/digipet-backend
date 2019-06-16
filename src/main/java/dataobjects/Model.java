@@ -22,6 +22,9 @@ public interface Model {
 
     String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks);
 
+    String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments,
+                         String PickUpLocation);
+
     int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location);
 
 
