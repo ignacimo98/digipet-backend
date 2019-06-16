@@ -1,14 +1,5 @@
 package dataobjects;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import routing.ResponseCreator;
-import routing.CustomResponse;
-
-import java.io.IOException;
-
-
 public class Administrator {
     private int IdAdministrator;
     private String Username;
