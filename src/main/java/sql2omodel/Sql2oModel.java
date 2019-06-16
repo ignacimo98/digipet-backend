@@ -283,4 +283,14 @@ public class Sql2oModel implements Model {
 
     }
 
+
+    public int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location){
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE Email1 = :Email1");
+
+
+
+        return 0;
+    }
+
 }

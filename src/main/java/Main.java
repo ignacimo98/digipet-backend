@@ -21,7 +21,7 @@ public class Main {
 //        System.out.println(encrypted_pass);
 //        System.out.println(BCrypt.checkpw(pass, "$2a$10$sIv5Hc0/j97NMkLomQnZruBjLp4r4Eg1QStmGzAuvnBl5kLbtYOcq"));
 
-        Sql2o sql2o = new Sql2o("jdbc:mysql://35.222.98.163:3306/DigiPet", "root", "digipet12345");
+        Sql2o sql2o = new Sql2o("jdbc:mysql://35.237.93.122:3306/DigiPet", "root", "digipet12345");
         Model model = new Sql2oModel(sql2o);
 
         Application app = new Application(model);

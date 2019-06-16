@@ -18,4 +18,6 @@ public interface Model {
     String insertPetOwner(int IdProvince, int IdCanton, String Name, String LastName,
                           String Email1, String Email2, int Phone, String Photo,
                           String PersonalDescription, String Password) throws Exception;
+
+    int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location);
 }
