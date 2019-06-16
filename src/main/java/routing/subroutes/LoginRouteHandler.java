@@ -16,7 +16,7 @@ public class LoginRouteHandler extends GenericRouteHandler {
     @Override
     public void init() {
         path("/login", () -> {
-            get("", map((req, res) -> LoginHandler.getClientIdType(model, req.queryParams("user"), req.queryParams("password"))));
+            post("", map((req, res) -> LoginHandler.getClientIdType(model, req.queryParams("user"), req.queryParams("password"))));
 
         });
 

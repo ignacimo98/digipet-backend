@@ -1,8 +1,6 @@
 package requesthandlers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Model;
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -38,7 +36,6 @@ public class LoginHandler {
             jws.setDoKeyValidation(false); // relaxes the key length requirement
 
             String jwt = jws.getCompactSerialization();
-            System.out.println(jwt);
 
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();

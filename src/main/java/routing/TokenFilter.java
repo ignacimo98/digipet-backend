@@ -1,9 +1,18 @@
 package routing;
 
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.HmacKey;
 import spark.Filter;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
+
+import java.security.Key;
+
+import static spark.Spark.halt;
 
 public final class TokenFilter {
 
@@ -11,10 +20,32 @@ public final class TokenFilter {
         Filter filter = new Filter() {
             @Override
             public void handle(Request request, Response response) throws Exception {
-                if (!(request.pathInfo() == "/login" ||
-                        request.pathInfo() == "/signup/clients" ||
-                        request.pathInfo() =="/signup/students")){ // Jimenaaaaa, aquí no sé si es .pathInfo(), .servletPath() o .contextPath()
+                if (!(request.pathInfo().equals("/login") ||
+                        request.pathInfo().equals("/signup/clients") ||
+                        request.pathInfo().equals("/signup/students"))){ // Jimenaaaaa, aquí no sé si es .pathInfo(), .servletPath() o .contextPath()
 
+                    String secret = "secret";
+                    String jwt = request.headers("Authorization");
+
+                    System.out.println(request.pathInfo());
+
+                    Key key = new HmacKey(secret.getBytes("UTF-8"));
+                    JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                            .setRequireExpirationTime()
+                            .setAllowedClockSkewInSeconds(30)
+                            .setRequireSubject()
+                            .setVerificationKey(key)
+                            .setRelaxVerificationKeyValidation() // relaxes key length requirement
+                            .build();
+
+                    try {
+                        JwtClaims processedClaims = jwtConsumer.processToClaims(jwt);
+                        request.attribute("id", processedClaims.getClaimValue("id"));
+                        request.attribute("type", processedClaims.getClaimValue("type"));
+                    }
+                    catch (InvalidJwtException e) {
+                        halt(403, "{\"error\": \"No autorizado\", \"logout\": true }");
+                    }
                 }
             }
         };
