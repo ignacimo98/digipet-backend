@@ -299,24 +299,37 @@ public class Sql2oModel implements Model {
             query.addParameter("Size", Size);
             query.addParameter("PetDescription", PetDescription);
             java.sql.Date InscriptionDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-            query.addParameter("InscriptionDate",InscriptionDate);
+            query.addParameter("InscriptionDate", InscriptionDate);
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
             query.executeUpdate();
             connection.commit();
+
+            int idPet = connection.createQuery("SELECT IdPet FROM Pet WHERE Name = :Name")
+                    .addParameter("Name", Name).executeScalar(Integer.class);
+
+            for (String link : PhotoLinks) {
+                query = connection.createQuery("INSERT INTO PetPhoto(IdPet, Link) " +
+                        "VALUES(:IdPet, :Link)");
+                query.addParameter("IdPet", idPet);
+                query.addParameter("Link", link);
+                query.executeUpdate();
+            }
 
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
             objectNode.put("status", "OK");
             System.out.println(objectNode.toString());
             return objectNode.toString();
-        }
-        catch (Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
+
+    }
 
 
-    public int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location){
+    public int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location){
         Connection connection = sql2o.beginTransaction();
         Query query = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE Email1 = :Email1");
 

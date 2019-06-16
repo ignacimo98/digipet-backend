@@ -17,7 +17,7 @@ public class PetRouteHandler extends GenericRouteHandler{
     public void init() {
         path("/pets", () -> {
             get("/:id", map((req, res) -> PetHandler.getPet(model, Integer.parseInt(req.params(":id")))));
-            get("/new", map((req, res) -> PetHandler.insertPet(model, req.body())));
+            post("/new", map((req, res) -> PetHandler.insertPet(model, req.body())));
 
         });
     }
