@@ -2,6 +2,7 @@ package requesthandlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Model;
 import dataobjects.PetOwner;
 import dataobjects.WalkService;
@@ -33,5 +34,23 @@ public class ServiceHandler {
         } catch (Exception e) {
             return CustomResponse.error(402, e.getMessage());
         }
+    }
+
+    public static ResponseCreator getCaregiverAvailability(Model model, int idPet, int idPetOwner, String startTime, String endTime, String location){
+        ObjectMapper mapper = new ObjectMapper();
+
+        int caregiverId = model.assignCaregiver(idPet, idPetOwner, startTime, endTime, location);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+
+        if (caregiverId!=0){
+            objectNode.put("caregiver", caregiverId);
+            System.out.println(objectNode.toString());
+            return CustomResponse.ok(objectNode.toString());
+        }
+        return CustomResponse.error(402, "No existen cuidadores disponibles en la franja horaria especificada");
+
+
     }
 }

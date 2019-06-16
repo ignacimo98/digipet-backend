@@ -12,18 +12,21 @@ import org.sql2o.Query;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 import routing.Token;
+import org.sql2o.data.Table;
 
 import javax.swing.text.html.parser.Entity;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.TooManyListenersException;
 
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
+
+    private static boolean timeForNewCaregiver = false;
 
     public Sql2oModel(Sql2o sql2o){
         this.sql2o = sql2o;
@@ -434,7 +437,6 @@ public class Sql2oModel implements Model {
 
     }
 
-
     @Override
     public String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks) {
         try {
@@ -483,8 +485,8 @@ public class Sql2oModel implements Model {
         try {
             Connection connection = sql2o.beginTransaction();
             int price = connection.createQuery("SELECT Value FROM Configuration WHERE Description = :Description")
-                        .addParameter("Description", "Precio")
-                        .executeScalar(Integer.class);
+                    .addParameter("Description", "Precio")
+                    .executeScalar(Integer.class);
 
             Query query = connection.createQuery("INSERT INTO WalkService(IdPet, IdCaregiver, StartTime, " +
                     "EndTime, Price, OwnerComments, PickUpLocation) VALUES (:IdPet, :IdCaregiver, :StartTime, :EndTime, " +
@@ -518,10 +520,234 @@ public class Sql2oModel implements Model {
     }
 
 
-    public int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location){
+    public int assignCaregiver(int idPet, int idPetOwner, String startTime, String endTime, String location){
         Connection connection = sql2o.beginTransaction();
-        Query query = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE Email1 = :Email1");
 
+        SimpleDateFormat dateTimeformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long dateDifference;
+        try {
+            System.out.println(startTime);
+            System.out.println(endTime);
+            Date startDate = dateTimeformatter.parse(startTime);
+            Date endDate = dateTimeformatter.parse(endTime);
+            System.out.println(startDate);
+            System.out.println(endDate);
+            dateDifference = endDate.getTime()-startDate.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+        long timeSlots = dateDifference / 1000 / 60 / 30;
+
+        Query query;
+        query = connection.createQuery("SELECT * FROM PetOwner WHERE IdPetOwner = :IdPetOwner");
+        query.addParameter("IdPetOwner", idPetOwner);
+        PetOwner petOwner = query.executeAndFetchFirst(PetOwner.class);
+
+        query = connection.createQuery("SELECT WalkService.*\n" +
+                "FROM WalkService\n" +
+                "INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
+                "WHERE DATE(StartTime) = DATE(:StartTime) AND P.IdPetOwner = :IdPetOwner;");
+        query.addParameter("StartTime", startTime);
+        query.addParameter("IdPetOwner", idPetOwner);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<WalkService> walksSameDay = query.executeAndFetch(WalkService.class);
+
+        if (!walksSameDay.isEmpty()){
+            query = connection.createQuery("SELECT WalkService.*\n" +
+                    "FROM WalkService\n" +
+                    "INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
+                    "WHERE DATE StartTime = :StartTime AND P.IdPetOwner = :IdPetOwner;");
+            query.addParameter("StartTime", startTime);
+            query.addParameter("IdPetOwner", idPetOwner);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            List<WalkService> walksSameTime = query.executeAndFetch(WalkService.class);
+            if (walksSameTime.isEmpty()){
+                query = connection.createQuery("SELECT IF(COUNT(IdCaregiver)=:RequiredTimeSlots, IdCaregiver, 0)\n" +
+                        "FROM Schedule\n" +
+                        "WHERE StartTime >= :StartTime AND EndTime <= :EndTime AND IdCaregiver = :IdCaregiver\n" +
+                        "GROUP BY IdCaregiver;");
+                query.addParameter("RequiredTimeSlots", timeSlots);
+                query.addParameter("StartTime", startTime);
+                query.addParameter("EndTime", endTime);
+                query.addParameter("IdCaregiver", walksSameDay.get(0).getIdCaregiver());
+                int checkedId = query.executeScalar(Integer.class);
+                if (checkedId != 0){
+                    return checkedId;
+                }
+            }
+
+            query = connection.createQuery(
+                    "SELECT IF(LessAssignedCaregiver.WalkAmount < 3, LessAssignedCaregiver.IdCaregiver, 0) AS IdCaregiver\n" +
+                            "FROM (\n" +
+                            "         SELECT count(IdWalkService) AS WalkAmount, IdCaregiver\n" +
+                            "         FROM WalkService\n" +
+                            "             INNER JOIN Caregiver C on WalkService.IdCaregiver = C.IdCaregiver\n" +
+                            "             INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
+                            "             INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
+                            "         WHERE WalkService.StartTime <= :StartTime\n" +
+                            "             AND WalkService.EndTime >= :EndTime\n" +
+                            "             AND P.IdPetOwner = :IdPetOwner \n" +
+                            "             AND C.Status = 1\n" +
+                            "         GROUP BY PO.IdPetOwner, IdCaregiver\n" +
+                            "         ORDER BY WalkAmount ASC\n" +
+                            "         LIMIT 1\n" +
+                            "         ) AS LessAssignedCaregiver\n" +
+                            "LIMIT 1;"
+            );
+            query.addParameter("StartTime", startTime);
+            query.addParameter("EndTime", endTime);
+            query.addParameter("IdPetOwner", idPetOwner);
+
+            int idCaregiver = query.executeScalar(Integer.class);
+
+
+//      Is there a caregiver assigned to less than 3 of the owner's pets?
+            if (idCaregiver != 0){
+                return idCaregiver;
+            }
+        }
+
+        List<Caregiver> caregiversAvailable;
+
+        query = connection.createQuery(
+                "SELECT Caregiver.*\n" +
+                        "FROM Caregiver\n" +
+                        "    INNER JOIN PetOwner PO on Caregiver.IdProvince = PO.IdProvince\n" +
+                        "WHERE PO.IdPetOwner = :IdPetOwner;"
+        );
+
+        query.addParameter("IdPetOwner", idPetOwner);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        caregiversAvailable = query.executeAndFetch(Caregiver.class);
+
+
+        if (caregiversAvailable.isEmpty()){ // There aren't caregivers in the same province as the pet owner
+            query = connection.createQuery(
+                    "SELECT Caregiver.*\n" +
+                            "FROM Caregiver\n" +
+                            "    INNER JOIN ProvinceXCaregiver PXC on Caregiver.IdCaregiver = PXC.IdCaregiver\n" +
+                            "    INNER JOIN PetOwner PO on PO.IdProvince = PXC.IdProvince\n" +
+                            "WHERE PO.IdPetOwner = :IdPetOwner;"
+            );
+
+            query.addParameter("IdPetOwner", idPetOwner);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            caregiversAvailable = query.executeAndFetch(Caregiver.class);
+        }
+
+        if (caregiversAvailable.isEmpty()){ // There aren't caregivers neither in the owners province, nor available to care in it
+            return 0;
+        }
+
+
+        query = connection.createQuery(
+                "SELECT Caregiver.*\n" +
+                        "FROM Caregiver\n" +
+                        "    INNER JOIN (SELECT IdCaregiver, COUNT(IdCaregiver) AS TimeSlots\n" +
+                        "                FROM Schedule\n" +
+                        "                WHERE StartTime >= :StartTime AND EndTime <= :EndTime\n" +
+                        "                GROUP BY IdCaregiver) AS AvailableCaregivers ON Caregiver.IdCaregiver = AvailableCaregivers.IdCaregiver\n" +
+                        "WHERE AvailableCaregivers.TimeSlots = :RequiredTimeSlots;"
+        );
+
+        query.addParameter("StartTime", startTime);
+        query.addParameter("EndTime", endTime);
+        query.addParameter("RequiredTimeSlots", timeSlots);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<Caregiver> caregiversAvailableInTimeSlot;
+        caregiversAvailableInTimeSlot = query.executeAndFetch(Caregiver.class);
+
+        if (timeForNewCaregiver){
+            boolean newCaregiversAvailable = false;
+            for (Caregiver caregiver : caregiversAvailable) {
+                if (caregiver.getWalksQuantity() == 0){
+                    newCaregiversAvailable = true;
+                    break;
+                }
+            }
+            if (newCaregiversAvailable){
+                List<Caregiver> newCaregivers = new ArrayList<>();
+                for (Caregiver caregiver : caregiversAvailable){
+                    if (caregiver.getWalksQuantity() == 0){
+                        newCaregivers.add(caregiver);
+                    }
+                }
+                List<Caregiver> newCaregiversInTimeSlot = new ArrayList<>();
+                for (Caregiver caregiver : caregiversAvailableInTimeSlot){
+                    for (Caregiver newCaregiver : newCaregivers){
+                        if (newCaregiver.getIdCaregiver() == caregiver.getIdCaregiver()){
+                            newCaregiversInTimeSlot.add(newCaregiver);
+                        }
+                    }
+                }
+                if (!newCaregiversInTimeSlot.isEmpty()){
+                    List<Caregiver> newCaregiversInTimeSlotInLocation = new ArrayList<>();
+                    for (Caregiver caregiver : newCaregiversInTimeSlot){
+                        if (caregiver.getIdCanton() == petOwner.getIdCanton()){
+                            newCaregiversInTimeSlotInLocation.add(caregiver);
+                        }
+
+                    }
+                    if (!newCaregiversInTimeSlotInLocation.isEmpty()){
+                        newCaregiversInTimeSlot = newCaregiversInTimeSlotInLocation;
+                    }
+                    Caregiver leastRecentCaregiver = newCaregiversInTimeSlot.get(0);
+                    for (Caregiver caregiver : newCaregiversInTimeSlot){
+                        if (caregiver.getInscriptionDate().getTime() < leastRecentCaregiver.getInscriptionDate().getTime()){
+                            leastRecentCaregiver = caregiver;
+                        }
+                    }
+                    return leastRecentCaregiver.getIdCaregiver();
+                }
+            }
+        }
+
+        query = connection.createQuery("SELECT Badge.*\n" +
+                "FROM Badge\n" +
+                "         INNER JOIN (SELECT IdCaregiver, COUNT(IdCaregiver) AS TimeSlots\n" +
+                "                     FROM Schedule\n" +
+                "                     WHERE StartTime >= :StartTime AND EndTime <= :EndTime\n" +
+                "                     GROUP BY IdCaregiver) AS AvailableCaregivers on Badge.IdCaregiver = AvailableCaregivers.IdCaregiver\n" +
+                "WHERE AvailableCaregivers.TimeSlots = :RequiredTimeSlots" );
+        query.addParameter("StartTime", startTime);
+        query.addParameter("EndTime", endTime);
+        query.addParameter("RequiredTimeSlots", timeSlots);
+
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<Badge> badgesForAvailableCaregivers;
+        badgesForAvailableCaregivers = query.executeAndFetch(Badge.class);
+
+        if (!caregiversAvailableInTimeSlot.isEmpty()) {
+            Caregiver selectedCaregiver = caregiversAvailableInTimeSlot.get(0);
+            float selectedCaregiverScore = 0;
+            for (Caregiver caregiver : caregiversAvailableInTimeSlot) {
+                float score = caregiver.getWalksQualification() * 0.5f;
+                if (caregiver.getIdCanton() == petOwner.getIdCanton()) {
+                    score += 0.1;
+                }
+                for (Badge badge : badgesForAvailableCaregivers) {
+                    if (badge.getIdCaregiver() == caregiver.getIdCaregiver()) {
+                        if (badge.getBadgeType() == 1 || badge.getBadgeType() == 2 ||
+                                badge.getBadgeType() == 3 || badge.getBadgeType() == 4) {
+                            score += 0.1;
+                        }
+                    }
+                }
+                if (score > selectedCaregiverScore){
+                    selectedCaregiver = caregiver;
+                    selectedCaregiverScore = score;
+                } else if (score == selectedCaregiverScore){
+                    if (caregiver.getLastName().compareToIgnoreCase(selectedCaregiver.getLastName()) < 0){
+                        selectedCaregiver = caregiver;
+                        selectedCaregiverScore = score;
+
+                    }
+                }
+            }
+            return selectedCaregiver.getIdCaregiver();
+        }
 
 
         return 0;

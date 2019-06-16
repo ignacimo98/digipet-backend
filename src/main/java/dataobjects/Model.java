@@ -25,7 +25,7 @@ public interface Model {
     String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments,
                          String PickUpLocation);
 
-    int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location);
+    int assignCaregiver(int IdPet, int IdPetOwner, String StartTime, String EndTime, String Location);
 
 
     Administrator getAdminFromId(int IdAdministrator) throws Exception;

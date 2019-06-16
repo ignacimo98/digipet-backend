@@ -11,10 +11,13 @@ import spark.Response;
 import spark.Spark;
 
 import java.security.Key;
+import java.util.HashMap;
 
 import static spark.Spark.halt;
 
 public final class TokenFilter {
+
+
 
     public final static void apply() {
         Filter filter = new Filter() {
@@ -46,6 +49,7 @@ public final class TokenFilter {
                         halt(403, "{\"error\": \"No autorizado\", \"logout\": true }");
                     }
                 }
+
             }
         };
         Spark.before(filter);

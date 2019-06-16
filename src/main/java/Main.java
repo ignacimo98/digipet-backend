@@ -1,4 +1,3 @@
-import dataobjects.Administrator;
 import dataobjects.Model;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sql2o.Sql2o;
@@ -6,9 +5,7 @@ import routing.Application;
 import routing.ResponseCreator;
 import sql2omodel.Sql2oModel;
 import com.fasterxml.jackson.databind.*;
-import spark.Route;
-import spark.Request;
-import spark.Response;
+
 
 import static spark.Spark.*;
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Administrator.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Badge.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Canton.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Caregiver.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Caregiver_def.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Complaint.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Country.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Pet.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_PetOwner.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_PetPhoto.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Province.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_ProvinceXCaregiver.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_Schedule.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_University.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_WalkService.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/DigiPet_test_table.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/creation.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/script.sql" dialect="MySQL" />
+  </component>
+</project>
