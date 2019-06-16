@@ -9,7 +9,7 @@ public interface Model {
     List getAllAdmins();
     List getAllPetsFromOwner(int IdPetOwner);
 
-    String getClientIdType(String LoginData, String Password) throws Exception;
+    List getClientIdType(String LoginData, String Password) throws Exception;
     String insertCaregiver(int IdStudent, int IdUniversity, int IdProvince, int IdCanton,
                            String Name, String LastName, String Email1, String Email2,
                            String Photo, String PersonalDescription, int Phone, boolean WorksInOtherProvince,

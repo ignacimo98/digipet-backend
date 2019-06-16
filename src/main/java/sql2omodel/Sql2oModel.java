@@ -15,6 +15,7 @@ import javax.swing.text.html.parser.Entity;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -147,7 +148,7 @@ public class Sql2oModel implements Model {
 
 
     @Override
-    public String getClientIdType(String LoginData, String Password) throws Exception{
+    public List getClientIdType(String LoginData, String Password) throws Exception{
         Connection connection = sql2o.open();
         int IsPetOwner = 0;
         int IsCaregiver = 0;
@@ -230,13 +231,12 @@ public class Sql2oModel implements Model {
             throw new Exception("Usuario no encontrado.");
         }
 
-        ObjectMapper jsonObject = new ObjectMapper();
-        ObjectNode objectNode = jsonObject.createObjectNode();
-        objectNode.put("id",IdClient);
-        objectNode.put("type",ClientType);
+        List<String> result = new ArrayList<>();
+        result.add(Integer.toString(IdClient));
+        result.add(ClientType);
 
-        System.out.println(objectNode.toString());
-        return objectNode.toString();
+        System.out.println(result);
+        return result;
 
     }
 
