@@ -19,5 +19,9 @@ public interface Model {
                           String Email1, String Email2, int Phone, String Photo,
                           String PersonalDescription, String Password) throws Exception;
 
+
     String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks);
+
+    int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location);
+
 }

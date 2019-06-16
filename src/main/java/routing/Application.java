@@ -5,6 +5,8 @@ import routing.subroutes.*;
 
 import java.util.ArrayList;
 
+import static spark.Spark.options;
+
 
 public class Application {
 
@@ -14,7 +16,6 @@ public class Application {
 
     public Application(Model model) {
         this.model = model;
-        CorsFilter.apply();
         routeHandlers = new ArrayList<>();
         routeHandlers.add(new AdminRouteHandler(model));
         routeHandlers.add(new PetRouteHandler(model));
@@ -26,8 +27,11 @@ public class Application {
     }
 
     public void init(){
+        CorsFilter.apply();
+        options("*", (req, res) -> "{}");
         for (GenericRouteHandler routeHandler: routeHandlers) {
             routeHandler.init();
         }
+
     }
 }

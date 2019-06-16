@@ -284,6 +284,7 @@ public class Sql2oModel implements Model {
 
     }
 
+
     @Override
     public String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks) {
         try {
@@ -313,6 +314,16 @@ public class Sql2oModel implements Model {
             e.printStackTrace();
         }
         return null;
+
+
+    public int assignCaregiver(int IdPet, int IdPetOwner, Date startTime, Date EndTime, String Location){
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT IdCaregiver FROM Caregiver WHERE Email1 = :Email1");
+
+
+
+        return 0;
+
     }
 
 }
