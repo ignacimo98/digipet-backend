@@ -12,6 +12,16 @@ import java.io.IOException;
 
 public class AdministratorHandler {
 
+    public static ResponseCreator getAdmin(Model model, int id) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return CustomResponse.ok(mapper.writeValueAsString(model.getAdminFromId(id)));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
     public static ResponseCreator getAllAdmins(Model model) {
 
         ObjectMapper mapper = new ObjectMapper();

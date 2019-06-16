@@ -1,5 +1,6 @@
 package routing.subroutes;
 
+import dataobjects.Administrator;
 import dataobjects.Model;
 import requesthandlers.AdministratorHandler;
 
@@ -16,8 +17,9 @@ public class AdminRouteHandler extends GenericRouteHandler {
     @Override
     public void init() {
         path("/administrators", () -> {
-            get("", map((req, res) -> AdministratorHandler.getAllAdmins(model)));
-            post("", map((req, res) -> AdministratorHandler.insertAdmin(model, req.body())));
+            get("", map((req, res) -> AdministratorHandler.getAdmin(model, Integer.parseInt(req.attribute("id").toString()))));
+            //get("", map((req, res) -> AdministratorHandler.getAllAdmins(model)));
+            //post("", map((req, res) -> AdministratorHandler.insertAdmin(model, req.body())));
 
         });
 

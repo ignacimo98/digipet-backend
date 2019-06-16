@@ -6,6 +6,7 @@ import routing.CustomResponse;
 import routing.ResponseCreator;
 
 public class ClientHandler {
+
     public static ResponseCreator getPetOwner(Model model, int id) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);

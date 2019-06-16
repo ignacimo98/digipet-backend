@@ -28,6 +28,7 @@ public interface Model {
     int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location);
 
 
+    Administrator getAdminFromId(int IdAdministrator) throws Exception;
     PetOwner getPetOwnerFromId(int IdPetOwner) throws Exception;
     Pet getPetFromId(int IdPet) throws Exception;
     Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;

@@ -129,6 +129,23 @@ public class Sql2oModel implements Model {
     }
 
     @Override
+    public Administrator getAdminFromId(int IdAdministrator) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM Administrator WHERE IdAdministrator = :IdAdministrator");
+        query.addParameter("IdAdministrator", IdAdministrator);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<Administrator> administrator = query.executeAndFetch(Administrator.class);
+
+        if(!administrator.isEmpty()){
+            return administrator.get(0);
+        }
+        else{
+            throw new Exception("Administrador no encontrado.");
+        }
+    }
+
+    @Override
     public WalkService getServiceFromId(int IdWalkService) throws Exception {
         Connection connection = sql2o.open();
         Query query = connection.createQuery("SELECT * FROM WalkService WHERE IdWalkService = :IdWalkService");
@@ -144,6 +161,7 @@ public class Sql2oModel implements Model {
             throw new Exception("Servicio no encontrado.");
         }
     }
+
 
     @Override
     public List getServicesForPetOwner(int IdPetOwner) throws Exception{
@@ -495,5 +513,7 @@ public class Sql2oModel implements Model {
         return 0;
 
     }
+
+
 
 }

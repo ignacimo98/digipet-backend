@@ -40,6 +40,7 @@ public final class TokenFilter {
                         JwtClaims processedClaims = jwtConsumer.processToClaims(jwt);
                         request.attribute("id", processedClaims.getClaimValue("id"));
                         request.attribute("type", processedClaims.getClaimValue("type"));
+
                     }
                     catch (InvalidJwtException e) {
                         halt(403, "{\"error\": \"No autorizado\", \"logout\": true }");
@@ -47,6 +48,6 @@ public final class TokenFilter {
                 }
             }
         };
-        Spark.after(filter);
+        Spark.before(filter);
     }
 }
