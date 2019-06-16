@@ -3,10 +3,7 @@ package sql2omodel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
-import dataobjects.Administrator;
-import dataobjects.Pet;
-import dataobjects.Model;
-import dataobjects.Province;
+import dataobjects.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
 import org.sql2o.Connection;
@@ -70,16 +67,61 @@ public class Sql2oModel implements Model {
     }
 
     @Override
-    public List getPetFromId(int IdPet) {
-        try (Connection connection = sql2o.open()){
-            Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPet = :IdPet");
+    public Pet getPetFromId(int IdPet) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPet = :IdPet");
+        query.addParameter("IdPet", IdPet);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<Pet> pet = query.executeAndFetch(Pet.class);
+
+        if(!pet.isEmpty()){
+            Pet result = pet.get(0);
+            query = connection.createQuery("SELECT Link FROM PetPhoto WHERE IdPet = :IdPet");
             query.addParameter("IdPet", IdPet);
-            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
-            return query.executeAndFetch(Pet.class);
+            result.setPhotoLinks(query.executeScalarList(String.class));
+            return result;
         }
-        catch (Exception e){
-            System.out.println("Error");
-            throw e;
+        else{
+            throw new Exception("Mascota no encontrada.");
+        }
+    }
+
+    @Override
+    public PetOwner getPetOwnerFromId(int IdPetOwner) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM PetOwner WHERE IdPetOwner = :IdPetOwner");
+        query.addParameter("IdPetOwner", IdPetOwner);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<PetOwner> petOwner = query.executeAndFetch(PetOwner.class);
+
+        if(!petOwner.isEmpty()){
+            return petOwner.get(0);
+        }
+        else{
+            throw new Exception("Cliente no encontrado.");
+        }
+    }
+
+    @Override
+    public Caregiver getCaregiverFromId(int IdCaregiver) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM Caregiver WHERE IdCaregiver = :IdCaregiver");
+        query.addParameter("IdCaregiver", IdCaregiver);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<Caregiver> caregiver = query.executeAndFetch(Caregiver.class);
+
+        if(!caregiver.isEmpty()){
+            Caregiver result = caregiver.get(0);
+            query = connection.createQuery("SELECT IdProvince FROM ProvinceXCaregiver WHERE IdCaregiver = :IdCaregiver");
+            query.addParameter("IdCaregiver", IdCaregiver);
+            result.setOtherProvincesId(query.executeScalarList(Integer.class));
+            return result;
+        }
+        else{
+            throw new Exception("Estudiante no encontrado.");
         }
     }
 
