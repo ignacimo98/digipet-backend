@@ -17,7 +17,7 @@ public class ClientRouteHandler extends GenericRouteHandler{
     public void init() {
         path("/clients", () -> {
             get("/:id", map((req, res) -> ClientHandler.getPetOwner(model, Integer.parseInt(req.params(":id")))));
-            //post("", map((req, res) -> ClientHandler.insertAdmin(model, req.body())));
+            get("/:id/services", map((req, res) -> ClientHandler.getServices(model, Integer.parseInt(req.params(":id")))));
 
         });
 

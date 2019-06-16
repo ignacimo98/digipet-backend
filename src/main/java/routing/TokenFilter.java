@@ -22,12 +22,10 @@ public final class TokenFilter {
             public void handle(Request request, Response response) throws Exception {
                 if (!(request.pathInfo().equals("/login") ||
                         request.pathInfo().equals("/signup/clients") ||
-                        request.pathInfo().equals("/signup/students"))){ // Jimenaaaaa, aquí no sé si es .pathInfo(), .servletPath() o .contextPath()
+                        request.pathInfo().equals("/signup/students"))){
 
                     String secret = "secret";
                     String jwt = request.headers("Authorization");
-
-                    System.out.println(request.pathInfo());
 
                     Key key = new HmacKey(secret.getBytes("UTF-8"));
                     JwtConsumer jwtConsumer = new JwtConsumerBuilder()

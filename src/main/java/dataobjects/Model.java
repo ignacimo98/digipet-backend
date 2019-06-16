@@ -33,4 +33,8 @@ public interface Model {
     Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;
     WalkService getServiceFromId(int IdWalkService) throws Exception;
 
+    List getServicesForPetOwner(int IdPetOwner) throws Exception;
+    List getServicesForPet(int IdPet) throws Exception;
+    List getServicesForCaregiver(int IdCaregiver) throws Exception;
+
 }

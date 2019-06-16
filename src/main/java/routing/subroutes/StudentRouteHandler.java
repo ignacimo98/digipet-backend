@@ -17,6 +17,7 @@ public class StudentRouteHandler extends GenericRouteHandler{
     public void init() {
         path("/students", () -> {
             get("/:id", map((req, res) -> StudentHandler.getCaregiver(model, Integer.parseInt(req.params(":id")))));
+            get("/:id/services", map((req, res) -> StudentHandler.getServices(model, Integer.parseInt(req.params(":id")))));
             //post("", map((req, res) -> ClientHandler.insertAdmin(model, req.body())));
 
         });

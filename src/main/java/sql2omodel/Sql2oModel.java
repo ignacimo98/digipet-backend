@@ -145,6 +145,61 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public List getServicesForPetOwner(int IdPetOwner) throws Exception{
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT W.IdWalkService, W.IdPet, W.IdCaregiver, W.StartTime, W.EndTime," +
+                " W.Price, W.OwnerComments, W.PickUpLocation, W.ReportDescription, W.Status, Rating FROM WalkService W\n" +
+                "INNER JOIN Pet P on W.IdPet = P.IdPet\n" +
+                "INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
+                "WHERE PO.IdPetOwner = :IdPetOwner");
+
+        query.addParameter("IdPetOwner", IdPetOwner);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<WalkService> walkServices = query.executeAndFetch(WalkService.class);
+
+        if(!walkServices.isEmpty()){
+            return walkServices;
+        }
+        else{
+            throw new Exception("Servicios no disponibles para este cliente.");
+        }
+    }
+
+    @Override
+    public List getServicesForPet(int IdPet) throws Exception{
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM WalkService WHERE IdPet = :IdPet");
+        query.addParameter("IdPet", IdPet);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<WalkService> walkServices = query.executeAndFetch(WalkService.class);
+
+        if(!walkServices.isEmpty()){
+            return walkServices;
+        }
+        else{
+            throw new Exception("Servicios no disponibles para esta mascota.");
+        }
+    }
+
+    @Override
+    public List getServicesForCaregiver(int IdCaregiver) throws Exception {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM WalkService WHERE IdCaregiver = :IdCaregiver");
+        query.addParameter("IdCaregiver", IdCaregiver);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<WalkService> walkServices = query.executeAndFetch(WalkService.class);
+
+        if(!walkServices.isEmpty()){
+            return walkServices;
+        }
+        else{
+            throw new Exception("Servicios no disponibles para este cuidador.");
+        }
+    }
 
 
     @Override
