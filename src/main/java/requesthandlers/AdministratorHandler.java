@@ -1,16 +1,20 @@
 package requesthandlers;
 
+import XLS.XLSWriter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import dataobjects.Administrator;
 import dataobjects.Model;
+import dataobjects.ReportEntry;
 import routing.CustomResponse;
 import routing.ResponseCreator;
 
 import javax.jws.WebParam;
 import java.io.IOException;
+import java.util.List;
 
 public class AdministratorHandler {
 
@@ -71,6 +75,21 @@ public class AdministratorHandler {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         try {
             return CustomResponse.ok(mapper.writeValueAsString(model.getComplaints()));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
+    public static ResponseCreator getReport(Model model, String requestBody){
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            String startDate = mapper.readTree(requestBody).get("startDate").asText();
+            String endDate = mapper.readTree(requestBody).get("endDate").asText();
+            List<ReportEntry> report = model.getReport(startDate, endDate);
+            XLSWriter.generateExcel(report, startDate, endDate);
+
+            return CustomResponse.ok(mapper.writeValueAsString(report));
         } catch (Exception e) {
             return CustomResponse.error(404, e.getMessage());
         }

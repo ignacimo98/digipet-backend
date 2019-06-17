@@ -18,7 +18,9 @@ public class ServiceRouteHandler extends GenericRouteHandler {
     @Override
     public void init() {
         path("/services", () -> {
+
             post("/availability", map((req, res) -> ServiceHandler.getCaregiverAvailability(model, req.body())));
+            post("/price", map((req, res) -> ServiceHandler.getServicePrice(model, req.body())));
             post("", map((req, res) -> ServiceHandler.insertService(model, req.body())));
             get("/:id", map((req, res) -> ServiceHandler.getService(model, Integer.parseInt(req.params(":id")))));
             post("/:id/report", map((req, res) -> ServiceHandler.updateReport(model, Integer.parseInt(req.params(":id")), req.body())));

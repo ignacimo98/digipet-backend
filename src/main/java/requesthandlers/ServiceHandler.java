@@ -27,11 +27,25 @@ public class ServiceHandler {
         }
     }
 
+    public static ResponseCreator getServicePrice(Model model, String requestBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            String startTime = mapper.readTree(requestBody).get("startTime").asText();
+            String endTime = mapper.readTree(requestBody).get("endTime").asText();
+
+            return CustomResponse.ok(model.getServicePrice(startTime, endTime));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
+
     public static ResponseCreator insertComplaint(Model model, int idService, String requestBody){
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            String description = mapper.readTree(requestBody).get("Description").asText();
+            String description = mapper.readTree(requestBody).get("description").asText();
             String jsonString = model.insertComplaint(idService, description);
 
             return CustomResponse.ok(jsonString);
@@ -61,7 +75,7 @@ public class ServiceHandler {
     public static ResponseCreator updateReport(Model model, int idService, String requestBody) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            String description = mapper.readTree(requestBody).get("ReportDescription").asText();
+            String description = mapper.readTree(requestBody).get("reportDescription").asText();
             String jsonString = model.updateReport(idService, description);
             return CustomResponse.ok(jsonString);
         } catch (Exception e) {
@@ -74,7 +88,7 @@ public class ServiceHandler {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            int rate = mapper.readTree(requestBody).get("Rating").asInt();
+            int rate = mapper.readTree(requestBody).get("rating").asInt();
             jsonObject = model.updateRate(idService, rate);
             TwitterHandler.postTweet(jsonObject.get("name").asText(), rate);
 
@@ -89,8 +103,8 @@ public class ServiceHandler {
         int caregiverId = 0;
         try {
             JsonNode node = objectMapper.readTree(body);
-            int idPet = node.get("idPet").asInt();
-            caregiverId = model.assignCaregiver(idPet, node.get("idPetOwner").asInt(), node.get("startTime").asText(), node.get("endTime").asText(), node.get("location").asText());
+            caregiverId = model.assignCaregiver(node.get("idPet").asInt(), node.get("idPetOwner").asInt(),
+                    node.get("startTime").asText(), node.get("endTime").asText(), node.get("location").asText());
         } catch (IOException e) {
             e.printStackTrace();
         }
