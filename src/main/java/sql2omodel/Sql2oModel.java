@@ -515,6 +515,21 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public List getReport(String StartDate, String EndDate) {
+        try (Connection connection = sql2o.open()){
+            Query query = connection.createQuery("SELECT DATE(StartTime) AS EntryDate, Price FROM WalkService " +
+                    "WHERE DATE(StartTime) BETWEEN :StartDate AND :EndDate");
+            query.addParameter("StartDate", StartDate);
+            query.addParameter("EndDate", EndDate);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            return query.executeAndFetch(ReportEntry.class);
+        }
+        catch (Exception e){
+            throw e;
+        }
+    }
+
     public String blockCaregiver(int idCaregiver) throws Exception {
         Connection connection = sql2o.beginTransaction();
         Query query = connection.createQuery("SELECT * \n" +
@@ -802,6 +817,8 @@ public class Sql2oModel implements Model {
             return null;
         }
     }
+
+
 
 
     public int assignCaregiver(int idPet, int idPetOwner, String startTime, String endTime, String location){

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import dataobjects.Administrator;
 import dataobjects.Model;
 import routing.CustomResponse;
@@ -71,6 +72,19 @@ public class AdministratorHandler {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         try {
             return CustomResponse.ok(mapper.writeValueAsString(model.getComplaints()));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
+    public static ResponseCreator getReport(Model model, String requestBody){
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            String startDate = mapper.readTree(requestBody).get("startDate").asText();
+            String endDate = mapper.readTree(requestBody).get("endDate").asText();
+
+            return CustomResponse.ok(mapper.writeValueAsString(model.getReport(startDate, endDate)));
         } catch (Exception e) {
             return CustomResponse.error(404, e.getMessage());
         }
