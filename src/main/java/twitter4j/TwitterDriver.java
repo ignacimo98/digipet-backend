@@ -15,7 +15,7 @@ import java.util.Scanner;
              
          Twitterer bigBird = new Twitterer(consolePrint);
 
-         String message = "Ya queremos ver sus perras :3";
+         String message = "Ya queremos ver sus perras \uD83D\uDC36 :3";
          bigBird.tweetOut(message);
 
       }//main         

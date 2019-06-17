@@ -27,11 +27,13 @@ public interface Model {
     String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments,
                          String PickUpLocation);
 
+
     String updateReport(int IdService, String ReportDescription) throws Exception;
 
     ObjectNode updateRate(int IdService, int Rate) throws Exception;
 
-    int assignCaregiver(int IdPet, int IdPetOwner, Date StartTime, Date EndTime, String Location);
+    int assignCaregiver(int IdPet, int IdPetOwner, String StartTime, String EndTime, String Location);
+
 
 
     Administrator getAdminFromId(int IdAdministrator) throws Exception;
