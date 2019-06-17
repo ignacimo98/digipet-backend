@@ -23,6 +23,7 @@ public class Caregiver {
     private String Password;
     private int Status;
     private List OtherProvincesId;
+    private List Badges;
 
     public int getIdCaregiver() {
         return IdCaregiver;
@@ -160,7 +161,7 @@ public class Caregiver {
         Password = password;
     }
 
-    public int isStatus() {
+    public int getStatus() {
         return Status;
     }
 
@@ -174,5 +175,13 @@ public class Caregiver {
 
     public void setOtherProvincesId(List otherProvincesId) {
         OtherProvincesId = otherProvincesId;
+    }
+
+    public List getBadges() {
+        return Badges;
+    }
+
+    public void setBadges(List badges) {
+        Badges = badges;
     }
 }

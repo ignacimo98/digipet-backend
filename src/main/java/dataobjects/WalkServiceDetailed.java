@@ -5,6 +5,7 @@ import java.util.List;
 
 public class WalkServiceDetailed {
 
+    private int IdCaregiver;
     private String StudentName;
     private String StudentLastName;
     private String EmailStudent;
@@ -12,6 +13,7 @@ public class WalkServiceDetailed {
     private int WalksQuantity;
     private float WalksRating;
     private int PhoneStudent;
+    private List Badges;
 
     private String ClientName;
     private String ClientLastName;
@@ -241,5 +243,21 @@ public class WalkServiceDetailed {
 
     public void setIdPet(int idPet) {
         IdPet = idPet;
+    }
+
+    public List getBadges() {
+        return Badges;
+    }
+
+    public void setBadges(List badges) {
+        Badges = badges;
+    }
+
+    public int getIdCaregiver() {
+        return IdCaregiver;
+    }
+
+    public void setIdCaregiver(int idCaregiver) {
+        IdCaregiver = idCaregiver;
     }
 }

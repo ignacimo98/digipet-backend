@@ -113,7 +113,7 @@ public class PetOwner {
         Password = password;
     }
 
-    public boolean isStatus() {
+    public boolean getStatus() {
         return Status;
     }
 
