@@ -33,7 +33,7 @@ public interface Model {
     ObjectNode updateRate(int IdService, int Rate) throws Exception;
 
     int assignCaregiver(int IdPet, int IdPetOwner, String StartTime, String EndTime, String Location);
-
+    String blockCaregiver(int idCaregiver) throws Exception;
 
 
     Administrator getAdminFromId(int IdAdministrator) throws Exception;
