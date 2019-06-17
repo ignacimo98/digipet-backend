@@ -25,7 +25,8 @@ public final class TokenFilter {
             public void handle(Request request, Response response) throws Exception {
                 if (!(request.pathInfo().equals("/login") ||
                         request.pathInfo().equals("/signup/clients") ||
-                        request.pathInfo().equals("/signup/students"))){
+                        request.pathInfo().equals("/signup/students")||
+                        request.requestMethod().equals("OPTIONS"))){
 
                     String secret = "secret";
                     String jwt = request.headers("Authorization");
