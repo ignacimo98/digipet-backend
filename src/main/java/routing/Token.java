@@ -3,11 +3,14 @@ package routing;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.keys.HmacKey;
 
 import java.security.Key;
 
 public class Token {
+
     public static String generateToken(int id, String type){
         try {
             JwtClaims claims = new JwtClaims();
