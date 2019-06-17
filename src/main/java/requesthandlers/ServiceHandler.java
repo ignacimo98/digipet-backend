@@ -27,6 +27,20 @@ public class ServiceHandler {
         }
     }
 
+    public static ResponseCreator getServicePrice(Model model, String requestBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            String startTime = mapper.readTree(requestBody).get("startTime").asText();
+            String endTime = mapper.readTree(requestBody).get("endTime").asText();
+
+            return CustomResponse.ok(model.getServicePrice(startTime, endTime));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
+
     public static ResponseCreator insertComplaint(Model model, int idService, String requestBody){
         ObjectMapper mapper = new ObjectMapper();
 

@@ -44,6 +44,7 @@ public interface Model {
     Pet getPetFromId(int IdPet) throws Exception;
     Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;
     WalkService getServiceFromId(int IdWalkService) throws Exception;
+    String getServicePrice(String StartTime, String EndTime);
 
     List getServicesForPetOwner(int IdPetOwner) throws Exception;
     List getServicesForPet(int IdPet) throws Exception;
