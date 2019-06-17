@@ -9,6 +9,8 @@ import dataobjects.WalkService;
 import routing.CustomResponse;
 import routing.ResponseCreator;
 
+import java.io.IOException;
+
 public class ServiceHandler {
 
     public static ResponseCreator getService(Model model, int id) {
@@ -37,8 +39,6 @@ public class ServiceHandler {
     }
 
     public static ResponseCreator getCaregiverAvailability(Model model, int idPet, int idPetOwner, String startTime, String endTime, String location){
-        ObjectMapper mapper = new ObjectMapper();
-
         int caregiverId = model.assignCaregiver(idPet, idPetOwner, startTime, endTime, location);
 
         ObjectMapper objectMapper = new ObjectMapper();

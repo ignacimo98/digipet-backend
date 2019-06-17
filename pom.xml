@@ -97,6 +97,12 @@
             <artifactId>jose4j</artifactId>
             <version>0.6.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>17.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
 
     </dependencies>

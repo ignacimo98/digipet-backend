@@ -3,11 +3,13 @@ package requesthandlers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Administrator;
 import dataobjects.Model;
 import routing.CustomResponse;
 import routing.ResponseCreator;
 
+import javax.jws.WebParam;
 import java.io.IOException;
 
 public class AdministratorHandler {
@@ -50,6 +52,20 @@ public class AdministratorHandler {
 
         int id = model.createAdmin(creation.getUsername(), creation.getEmail(), creation.getPassword(), creation.getStatus());
         return CustomResponse.ok(id);
+    }
+
+    public static ResponseCreator blockCaregiver(Model model, int idCaregiver){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        String message;
+        try {
+            message = model.blockCaregiver(idCaregiver);
+        } catch (Exception e){
+            e.printStackTrace();
+            return CustomResponse.error(300, e.getMessage());
+        }
+        return CustomResponse.ok(message);
+
     }
 
 }

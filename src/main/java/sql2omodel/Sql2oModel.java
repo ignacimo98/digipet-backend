@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import com.sun.xml.internal.ws.api.message.ExceptionHasMessage;
 import dataobjects.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
@@ -748,12 +749,32 @@ public class Sql2oModel implements Model {
             }
             return selectedCaregiver.getIdCaregiver();
         }
-
-
         return 0;
-
     }
 
+    public String blockCaregiver(int idCaregiver) throws Exception {
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT * \n" +
+                "FROM Caregiver \n" +
+                "WHERE IdCaregiver = :IdCaregiver");
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<Caregiver> caregiver;
+        caregiver = query.executeAndFetch(Caregiver.class);
+
+        if (caregiver.isEmpty()) {
+            throw new Exception("El cuidador especificado no existe");
+        }
+
+        query = connection.createQuery("UPDATE `DigiPet`.`Caregiver` t " +
+                "SET t.`Status` = 2 " +
+                "WHERE t.`IdCaregiver` = :IdCaregiver;");
+        query.addParameter("IdCaregiver", idCaregiver);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        query.executeUpdate();
+        connection.commit();
+
+        return "El cuidador ha sido bloqueado con éxito";
+    }
 
 
 }
