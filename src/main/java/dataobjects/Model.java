@@ -42,6 +42,7 @@ public interface Model {
     List getAllPetsFromOwner(int IdPetOwner);
     PetOwner getPetOwnerFromId(int IdPetOwner) throws Exception;
     List getServicesForPetOwner(int IdPetOwner) throws Exception;
+    String changePetOwnerStatus(int IdPetOwner, boolean Status) throws Exception;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +64,7 @@ public interface Model {
 
     Caregiver getCaregiverFromId(int IdCaregiver) throws Exception;
     List getServicesForCaregiver(int IdCaregiver) throws Exception;
+    String changeCaregiverStatus(int IdCaregiver, int Status) throws Exception;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

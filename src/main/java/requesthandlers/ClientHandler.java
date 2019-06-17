@@ -36,4 +36,15 @@ public class ClientHandler {
             return CustomResponse.error(404, e.getMessage());
         }
     }
+
+    public static ResponseCreator changePetOwnerStatus(Model model, int id, String requestBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            boolean status = mapper.readTree(requestBody).get("status").asBoolean();
+            return CustomResponse.ok(model.changePetOwnerStatus(id, status));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
 }

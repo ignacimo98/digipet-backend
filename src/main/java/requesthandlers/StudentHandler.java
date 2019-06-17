@@ -43,5 +43,16 @@ public class StudentHandler {
         }
     }
 
+    public static ResponseCreator changeCaregiverStatus(Model model, int id, String requestBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            int status = mapper.readTree(requestBody).get("status").asInt();
+            return CustomResponse.ok(model.changeCaregiverStatus(id, status));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
 
 }

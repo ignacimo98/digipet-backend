@@ -304,16 +304,32 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public String changePetOwnerStatus(int IdPetOwner, boolean Status) throws Exception{
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdPetOwner) FROM Pet WHERE IdPetOwner = :IdPetOwner");
+        query.addParameter("IdPetOwner", IdPetOwner);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        int existsPetOwner = query.executeScalar(Integer.class);
 
+        if(existsPetOwner == 1) {
 
+            query = connection.createQuery("UPDATE PetOwner SET Status = :Status " +
+                    "WHERE IdPetOwner = :IdPetOwner");
+            query.addParameter("IdPetOwner", IdPetOwner);
+            query.addParameter("Status", Status);
+            query.executeUpdate();
+            connection.commit();
 
-
-
-
-
-
-
-
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            return objectNode.toString();
+        }
+        else{
+            throw new Exception("No se ha encontrado el cliente.");
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -487,22 +503,35 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public String changeCaregiverStatus(int IdCaregiver, int Status) throws Exception {
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdCaregiver) FROM Caregiver WHERE IdCaregiver = :IdCaregiver");
+        query.addParameter("IdCaregiver", IdCaregiver);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        int existsCaregiver = query.executeScalar(Integer.class);
 
+        int isBlocked = connection.createQuery("SELECT Status FROM Caregiver WHERE IdCaregiver = :IdCaregiver")
+            .addParameter("IdCaregiver", IdCaregiver).executeScalar(Integer.class);
 
+        if(existsCaregiver == 1 && isBlocked != 2) {
 
+            query = connection.createQuery("UPDATE Caregiver SET Status = :Status " +
+                    "WHERE IdCaregiver = :IdCaregiver");
+            query.addParameter("IdCaregiver", IdCaregiver);
+            query.addParameter("Status", Status);
+            query.executeUpdate();
+            connection.commit();
 
-
-
-
-
-
-
-
-
-
-
-
-
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            return objectNode.toString();
+        }
+        else{
+            throw new Exception("No se puede cambiar el estado del cuidador");
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,8 +729,7 @@ public class Sql2oModel implements Model {
             return objectNode.toString();
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new Exception("Este cuidador ya ha sido denunciado.");
         }
     }
 
