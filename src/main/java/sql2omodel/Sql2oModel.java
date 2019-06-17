@@ -2,6 +2,7 @@ package sql2omodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import dataobjects.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
@@ -19,7 +20,7 @@ import java.util.*;
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
 
-    private static boolean timeForNewCaregiver = false;
+    public static boolean timeForNewCaregiver = false;
 
     public Sql2oModel(Sql2o sql2o){
         this.sql2o = sql2o;
@@ -1177,6 +1178,41 @@ public class Sql2oModel implements Model {
 
         return objectNode.toString();
 
+    }
+    public String insertHours(int idCaregiver, String startTime, String endTime) throws Exception {
+        SimpleDateFormat dateTimeformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long dateDifference;
+        Date startDate = dateTimeformatter.parse(startTime);
+        Date endDate = dateTimeformatter.parse(endTime);
+        dateDifference = endDate.getTime()-startDate.getTime();
+        if (dateDifference < 0){
+            throw new Exception("La hora de finalización se encuentra antes de la de inicio.");
+        }
+        long timeSlots = dateDifference / 1000 / 60 / 30;
+
+        Connection connection = sql2o.beginTransaction();
+        Query query;
+
+        for (int i = 0; i < timeSlots; i++) {
+            query = connection.createQuery("INSERT INTO Schedule(IdCaregiver, StartTime, EndTime)\n" +
+                    "VALUE (:IdCaregiver, :StartTime, :EndTime)");
+            query.addParameter("IdCaregiver", idCaregiver);
+            query.addParameter("StartTime",dateTimeformatter.format(startDate));
+            startDate.setTime(startDate.getTime()+30*60*1000);
+            query.addParameter("EndTime", dateTimeformatter.format(startDate));
+            try {
+                query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+                query.executeUpdate();
+                connection.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        ObjectMapper jsonObject = new ObjectMapper();
+        ObjectNode objectNode = jsonObject.createObjectNode();
+        objectNode.put("status", "OK");
+
+        return objectNode.toString();
     }
 
 

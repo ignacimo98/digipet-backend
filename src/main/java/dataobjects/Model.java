@@ -82,4 +82,11 @@ public interface Model {
     String updateReport(int IdService, String ReportDescription) throws Exception;
     ObjectNode updateRate(int IdService, int Rate) throws Exception;
     List getReport(String StartDate, String EndDate);
+
+
+    public String insertHours(int idCaregiver, String startTime, String endTime) throws Exception;
+
+
+
+
 }
