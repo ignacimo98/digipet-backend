@@ -64,8 +64,16 @@ public class AdministratorHandler {
         } catch (Exception e){
             return CustomResponse.error(300, e.getMessage());
         }
+    }
 
-
+    public static ResponseCreator getComplaints(Model model) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return CustomResponse.ok(mapper.writeValueAsString(model.getComplaints()));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
     }
 
 }

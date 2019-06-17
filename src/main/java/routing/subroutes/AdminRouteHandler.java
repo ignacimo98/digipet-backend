@@ -21,6 +21,8 @@ public class AdminRouteHandler extends GenericRouteHandler {
             //get("", map((req, res) -> AdministratorHandler.getAllAdmins(model)));
             //post("", map((req, res) -> AdministratorHandler.insertAdmin(model, req.body())));
             post("/block/:id", map(((req, res) -> AdministratorHandler.blockCaregiver(model, Integer.parseInt(req.params(":id"))))));
+            get("/complaints", map((req, res) -> AdministratorHandler.getComplaints(model)));
+
 
         });
 

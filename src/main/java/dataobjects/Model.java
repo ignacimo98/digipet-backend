@@ -49,4 +49,6 @@ public interface Model {
     List getServicesForPet(int IdPet) throws Exception;
     List getServicesForCaregiver(int IdCaregiver) throws Exception;
 
+    List getComplaints();
+
 }

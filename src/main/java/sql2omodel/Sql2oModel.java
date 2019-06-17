@@ -226,6 +226,18 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public List getComplaints() {
+        try (Connection connection = sql2o.open()){
+            Query query = connection.createQuery("SELECT * FROM Complaint WHERE Status = 0");
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            return query.executeAndFetch(Complaint.class);
+        }
+        catch (Exception e){
+            throw e;
+        }
+    }
+
 
     @Override
     public String getClientIdType(String LoginData, String Password) throws Exception{
@@ -969,12 +981,13 @@ public class Sql2oModel implements Model {
             throw new Exception("El cuidador especificado no existe");
         }
 
-        query = connection.createQuery("UPDATE `DigiPet`.`Caregiver` t " +
-                "SET t.`Status` = 2 " +
-                "WHERE t.`IdCaregiver` = :IdCaregiver;");
+        query = connection.createQuery("UPDATE Caregiver " +
+                "SET Status = 2 " +
+                "WHERE IdCaregiver = :IdCaregiver");
         query.addParameter("IdCaregiver", idCaregiver);
-        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
         query.executeUpdate();
+
+
         connection.commit();
 
         ObjectMapper jsonObject = new ObjectMapper();
