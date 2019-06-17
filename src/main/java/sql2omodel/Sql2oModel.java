@@ -265,7 +265,15 @@ public class Sql2oModel implements Model {
                     "AND Status != 0");
             query.addParameter("IdPetOwner", IdPetOwner);
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
-            return query.executeAndFetch(Pet.class);
+            List<Pet> pets = query.executeAndFetch(Pet.class);
+
+            for(Pet pet : pets){
+                query = connection.createQuery("SELECT Link FROM PetPhoto WHERE IdPet = :IdPet")
+                .addParameter("IdPet", pet.getIdPet());
+                pet.setPhotoLinks(query.executeScalarList(String.class));
+            }
+
+            return pets;
         }
         catch (Exception e){
             System.out.println("Error");
