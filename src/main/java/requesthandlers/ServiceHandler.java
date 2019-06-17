@@ -1,5 +1,6 @@
 package requesthandlers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -83,11 +84,19 @@ public class ServiceHandler {
         }
     }
 
-    public static ResponseCreator getCaregiverAvailability(Model model, int idPet, int idPetOwner, String startTime, String endTime, String location){
-        int caregiverId = model.assignCaregiver(idPet, idPetOwner, startTime, endTime, location);
-
+    public static ResponseCreator getCaregiverAvailability(Model model, String body){
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode objectNode = objectMapper.createObjectNode();
+        int caregiverId = 0;
+        try {
+            JsonNode node = objectMapper.readTree(body);
+            caregiverId = model.assignCaregiver(node.get("IdPet").asInt(), node.get("IdPetOwner").asInt(), node.get("StartTime").asText(), node.get("EndTime").asText(), node.get("location").asText());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        ObjectMapper objectMapper1 = new ObjectMapper();
+        ObjectNode objectNode = objectMapper1.createObjectNode();
 
         if (caregiverId!=0){
             objectNode.put("caregiver", caregiverId);
