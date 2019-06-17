@@ -647,11 +647,21 @@ public class Sql2oModel implements Model {
                         .executeUpdate();
             }
 
+            String name = connection.createQuery("SELECT Name FROM Caregiver WHERE " +
+                    "IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver)
+                    .executeScalar(String.class);
+
+            String lastName = connection.createQuery("SELECT LastName FROM Caregiver WHERE " +
+                    "IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver)
+                    .executeScalar(String.class);
+
             connection.commit();
 
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
-            objectNode.put("status", "OK");
+            objectNode.put("name", name + " " + lastName);
+            objectNode.put("rating", Rate);
+
             System.out.println(objectNode.toString());
             return objectNode;
 

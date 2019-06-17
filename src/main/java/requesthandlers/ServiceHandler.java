@@ -6,8 +6,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Model;
 import dataobjects.PetOwner;
 import dataobjects.WalkService;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import routing.CustomResponse;
 import routing.ResponseCreator;
+import twitter4j.TwitterHandler;
+import twitter4j.Twitterer;
 
 import java.io.IOException;
 
@@ -52,14 +55,15 @@ public class ServiceHandler {
     }
 
     public static ResponseCreator updateRate(Model model, int idService, String requestBody) {
-        String jsonString = "";
+        ObjectNode jsonObject;
         ObjectMapper mapper = new ObjectMapper();
 
         try {
             int rate = mapper.readTree(requestBody).get("rating").asInt();
-            jsonString = model.updateRate(idService, rate).get("status").toString();
+            jsonObject = model.updateRate(idService, rate);
+            TwitterHandler.postTweet(jsonObject.get("name").asText(), rate);
 
-            return CustomResponse.ok(jsonString);
+            return CustomResponse.ok(jsonObject.toString());
         } catch (Exception e) {
             return CustomResponse.error(404, e.getMessage());
         }

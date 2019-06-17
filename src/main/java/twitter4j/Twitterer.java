@@ -22,11 +22,10 @@ import java.util.List;
 public class Twitterer
    {
       private Twitter twitter;
-      private PrintStream consolePrint;
       private List<Status> statuses;
 
      
-      public Twitterer(PrintStream console)
+      public Twitterer()
       {
          // Makes an instance of Twitter - this is re-useable and thread safe.
          // Connects to Twitter and performs authorizations.
@@ -43,7 +42,6 @@ public class Twitterer
           TwitterFactory tf = new TwitterFactory(cb.build());
           twitter = tf.getInstance();
 
-         consolePrint = console;
          statuses = new ArrayList<Status>();
       }
    
