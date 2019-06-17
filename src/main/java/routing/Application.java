@@ -5,7 +5,7 @@ import routing.subroutes.*;
 
 import java.util.ArrayList;
 
-import static spark.Spark.options;
+import static spark.Spark.*;
 
 
 public class Application {
@@ -35,6 +35,7 @@ public class Application {
         for (GenericRouteHandler routeHandler: routeHandlers) {
             routeHandler.init();
         }
+
 
     }
 }

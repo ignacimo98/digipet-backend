@@ -3,8 +3,7 @@ package sql2omodel;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
-import com.sun.xml.internal.ws.api.message.ExceptionHasMessage;
+
 import dataobjects.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
@@ -26,7 +25,7 @@ import java.util.*;
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
 
-    private static boolean timeForNewCaregiver = false;
+    public static boolean timeForNewCaregiver = false;
 
     public Sql2oModel(Sql2o sql2o){
         this.sql2o = sql2o;
@@ -35,7 +34,9 @@ public class Sql2oModel implements Model {
 
     @Override
     public int createAdmin(String Username, String Email, String Password, Boolean Status) {
+        System.out.println(1);
         try (Connection connection = sql2o.beginTransaction()){
+            System.out.println(2);
             connection.createQuery("INSERT INTO Administrator(Username, Email, Password, Status) " +
                     "VALUES (:Username, :Email, :Password, :Status)")
                     .addParameter("Username", Username)
@@ -737,6 +738,7 @@ public class Sql2oModel implements Model {
 
 
     public int assignCaregiver(int idPet, int idPetOwner, String startTime, String endTime, String location){
+        System.out.println("está entrando");
         Connection connection = sql2o.beginTransaction();
 
         SimpleDateFormat dateTimeformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -978,7 +980,7 @@ public class Sql2oModel implements Model {
         caregiver = query.executeAndFetch(Caregiver.class);
 
         if (caregiver.isEmpty()) {
-            throw new Exception("El cuidador especificado no existe");
+            throw new Exception("El cuidador especificado no existe.");
         }
 
         query = connection.createQuery("UPDATE Caregiver " +
@@ -990,6 +992,42 @@ public class Sql2oModel implements Model {
 
         connection.commit();
 
+        ObjectMapper jsonObject = new ObjectMapper();
+        ObjectNode objectNode = jsonObject.createObjectNode();
+        objectNode.put("status", "OK");
+
+        return objectNode.toString();
+    }
+
+    public String insertHours(int idCaregiver, String startTime, String endTime) throws Exception {
+        SimpleDateFormat dateTimeformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long dateDifference;
+        Date startDate = dateTimeformatter.parse(startTime);
+        Date endDate = dateTimeformatter.parse(endTime);
+        dateDifference = endDate.getTime()-startDate.getTime();
+        if (dateDifference < 0){
+            throw new Exception("La hora de finalización se encuentra antes de la de inicio.");
+        }
+        long timeSlots = dateDifference / 1000 / 60 / 30;
+
+        Connection connection = sql2o.beginTransaction();
+        Query query;
+
+        for (int i = 0; i < timeSlots; i++) {
+            query = connection.createQuery("INSERT INTO Schedule(IdCaregiver, StartTime, EndTime)\n" +
+                    "VALUE (:IdCaregiver, :StartTime, :EndTime)");
+            query.addParameter("IdCaregiver", idCaregiver);
+            query.addParameter("StartTime",dateTimeformatter.format(startDate));
+            startDate.setTime(startDate.getTime()+30*60*1000);
+            query.addParameter("EndTime", dateTimeformatter.format(startDate));
+            try {
+                query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+                query.executeUpdate();
+                connection.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         ObjectMapper jsonObject = new ObjectMapper();
         ObjectNode objectNode = jsonObject.createObjectNode();
         objectNode.put("status", "OK");

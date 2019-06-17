@@ -37,6 +37,7 @@ public interface Model {
 
     int assignCaregiver(int IdPet, int IdPetOwner, String StartTime, String EndTime, String Location);
     String blockCaregiver(int idCaregiver) throws Exception;
+    public String insertHours(int idCaregiver, String startTime, String endTime) throws Exception;
 
 
     Administrator getAdminFromId(int IdAdministrator) throws Exception;

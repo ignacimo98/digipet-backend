@@ -89,7 +89,8 @@ public class ServiceHandler {
         int caregiverId = 0;
         try {
             JsonNode node = objectMapper.readTree(body);
-            caregiverId = model.assignCaregiver(node.get("IdPet").asInt(), node.get("IdPetOwner").asInt(), node.get("StartTime").asText(), node.get("EndTime").asText(), node.get("location").asText());
+            int idPet = node.get("idPet").asInt();
+            caregiverId = model.assignCaregiver(idPet, node.get("idPetOwner").asInt(), node.get("startTime").asText(), node.get("endTime").asText(), node.get("location").asText());
         } catch (IOException e) {
             e.printStackTrace();
         }
