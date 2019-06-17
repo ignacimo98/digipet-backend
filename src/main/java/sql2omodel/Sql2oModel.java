@@ -588,12 +588,31 @@ public class Sql2oModel implements Model {
     @Override
     public List getReport(String StartDate, String EndDate) {
         try (Connection connection = sql2o.open()){
-            Query query = connection.createQuery("SELECT DATE(StartTime) AS EntryDate, Price FROM WalkService " +
-                    "WHERE DATE(StartTime) BETWEEN :StartDate AND :EndDate");
+            Query query = connection.createQuery("SELECT DATE(StartTime) AS EntryDate, PO.Name AS ClientName, PO.LastName AS ClientLastName, C.Name AS StudentName,\n" +
+                    "       C.LastName AS StudentLastName, P2.Name AS Province, C2.Name AS Canton, Price AS TotalPrice, P.Name AS PetName FROM WalkService\n" +
+                    "INNER JOIN Caregiver C on WalkService.IdCaregiver = C.IdCaregiver\n" +
+                    "INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
+                    "INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
+                    "INNER JOIN Province P2 on PO.IdProvince = P2.IdProvince\n" +
+                    "INNER JOIN Canton C2 on C.IdCanton = C2.IdCanton\n" +
+                    "WHERE DATE(StartTime) BETWEEN :StartDate AND :EndDate \n" +
+                    "ORDER BY EntryDate ASC");
             query.addParameter("StartDate", StartDate);
             query.addParameter("EndDate", EndDate);
+
+            int price = connection.createQuery("SELECT Value FROM Configuration WHERE Description = :Description")
+                    .addParameter("Description", "Precio")
+                    .executeScalar(Integer.class);
+
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
-            return query.executeAndFetch(ReportEntry.class);
+            List<ReportEntry> reports = query.executeAndFetch(ReportEntry.class);
+
+            for(ReportEntry report : reports){
+                report.setUnitPrice(price);
+                report.setServiceType("Caminata");
+            }
+
+            return reports;
         }
         catch (Exception e){
             throw e;

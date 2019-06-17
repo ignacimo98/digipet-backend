@@ -26,13 +26,6 @@ public class AdminRouteHandler extends GenericRouteHandler {
             get("/students", map((req, res) -> AdministratorHandler.getAllCaregivers(model)));
 
 
-
-
-
-
-
-
-
         });
 
     }
