@@ -3,24 +3,19 @@ package sql2omodel;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import dataobjects.*;
 import org.mindrot.jbcrypt.BCrypt;
 import org.simpleflatmapper.sql2o.SfmResultSetHandlerFactoryBuilder;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
-import org.sql2o.Sql2oException;
 import routing.Token;
 
-import javax.swing.text.html.parser.Entity;
+import java.nio.channels.FileLock;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TooManyListenersException;
 
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
@@ -232,9 +227,6 @@ public class Sql2oModel implements Model {
         int IdClient = -1;
         String ClientType = "";
         String PasswordHashed;
-        String JsonString;
-
-
 
         Query query = connection.createQuery("SELECT COUNT(IdPetOwner) FROM PetOwner WHERE Email1 = :Email1");
         query.addParameter("Email1", LoginData);
@@ -510,6 +502,145 @@ public class Sql2oModel implements Model {
             objectNode.put("status", "OK");
             System.out.println(objectNode.toString());
             return objectNode.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String updateReport(int IdService, String ReportDescription) throws Exception{
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService WHERE IdWalkService = :IdWalkService");
+        query.addParameter("IdWalkService", IdService);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        int existsService = query.executeScalar(Integer.class);
+
+        if(existsService == 1) {
+
+            query = connection.createQuery("UPDATE WalkService SET ReportDescription = :ReportDescription " +
+                    "WHERE IdWalkService = :IdWalkService");
+
+            query.addParameter("ReportDescription", ReportDescription);
+            query.addParameter("IdWalkService", IdService);
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.get("status"));
+            return objectNode.toString();
+        }
+        else{
+            throw new Exception("No se ha encontrado el servicio.");
+
+        }
+
+
+    }
+
+    @Override
+    public ObjectNode updateRate(int IdService, int Rate) throws Exception {
+        try {
+            Connection connection = sql2o.beginTransaction();
+            Query query = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService WHERE IdWalkService = :IdWalkService");
+            query.addParameter("IdWalkService", IdService);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            int existsService = query.executeScalar(Integer.class);
+
+            query = connection.createQuery("UPDATE WalkService SET Rating = :Rating, Status = 1 " +
+                    "WHERE IdWalkService = :IdWalkService");
+            query.addParameter("Rating", Rate);
+            query.addParameter("IdWalkService", IdService);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+
+            //get caregiver id
+            int idCaregiver = connection.createQuery("SELECT IdCaregiver FROM WalkService WHERE IdWalkService = :IdWalkService")
+                    .addParameter("IdWalkService", IdService).executeScalar(Integer.class);
+
+            //get pet id
+            int idPet = connection.createQuery("SELECT IdPet FROM WalkService WHERE IdWalkService = :IdWalkService")
+                    .addParameter("IdWalkService", IdService).executeScalar(Integer.class);
+
+            //get average rating updated
+            float averageRating = connection.createQuery("SELECT AVG(Rating) FROM WalkService WHERE IdCaregiver = :IdCaregiver")
+                    .addParameter("IdCaregiver", idCaregiver).executeScalar(Float.class);
+
+            //get quantity of walks for caregiver
+            int walksQuantityCaregiver = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService WHERE IdCaregiver = :IdCaregiver")
+                    .addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+
+            //get quantity of walks for pet
+            int walksQuantityPet = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService WHERE IdPet = :IdPet")
+                    .addParameter("IdPet", idPet).executeScalar(Integer.class);
+
+            //get quantity of walks with more than five starts
+            int walksQuantityFiveStars = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService " +
+                    "WHERE IdCaregiver = :IdCaregiver AND Rating = 5")
+                    .addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+
+            //update caregiver
+            connection.createQuery("UPDATE Caregiver SET WalksRating = :WalksRating,  WalksQuantity = :WalksQuantity " +
+                    "WHERE IdCaregiver = :IdCaregiver")
+                    .addParameter("WalksQuantity", walksQuantityCaregiver)
+                    .addParameter("WalksRating", averageRating)
+                    .addParameter("IdCaregiver", idCaregiver)
+                    .executeUpdate();
+
+            //update pet
+            connection.createQuery("UPDATE Pet SET WalksQuantity = :WalksQuantity"+
+                    "WHERE IdPet = :IdPet")
+                    .addParameter("WalksQuantity", walksQuantityCaregiver)
+                    .addParameter("IdPet", idPet)
+                    .executeUpdate();
+
+            //update badges
+            if(walksQuantityFiveStars > 100){
+                connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
+                        "VALUES(:IdCaregiver, 1)")
+                        .addParameter("IdCaregiver", idCaregiver)
+                        .executeUpdate();
+            }
+
+            if(walksQuantityCaregiver > 50){
+                connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
+                        "VALUES(:IdCaregiver, 2)")
+                        .addParameter("IdCaregiver", idCaregiver)
+                        .executeUpdate();
+            }
+
+            if(walksQuantityCaregiver > 100){
+                connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
+                        "VALUES(:IdCaregiver, 3)")
+                        .addParameter("IdCaregiver", idCaregiver)
+                        .executeUpdate();
+            }
+
+            if(walksQuantityCaregiver > 500){
+                connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
+                        "VALUES(:IdCaregiver, 4)")
+                        .addParameter("IdCaregiver", idCaregiver)
+                        .executeUpdate();
+            }
+
+
+
+
+
+            connection.commit();
+
+
+
+
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.toString());
+            return objectNode;
 
         } catch (Exception e) {
             e.printStackTrace();

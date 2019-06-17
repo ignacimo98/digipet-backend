@@ -28,10 +28,23 @@ public class ServiceHandler {
             creation = mapper.readValue(requestBody, WalkService.class);
             String jsonString = model.insertService(creation.getIdPet(), creation.getIdCaregiver(), creation.getStartTime(),
                     creation.getEndTime(), creation.getOwnerComments(), creation.getPickUpLocation());
+
             return CustomResponse.ok(jsonString);
 
         } catch (Exception e) {
             return CustomResponse.error(402, e.getMessage());
+        }
+    }
+
+    public static ResponseCreator updateReport(Model model, int idService, String description){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            WalkService walkService = mapper.readValue(description, WalkService.class);
+            String jsonString = model.updateReport(idService, walkService.getReportDescription());
+            return CustomResponse.ok(jsonString);
+        }
+        catch (Exception e){
+            return CustomResponse.error(404, e.getMessage());
         }
     }
 }
