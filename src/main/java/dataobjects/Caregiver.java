@@ -18,7 +18,7 @@ public class Caregiver {
     private String PersonalDescription;
     private int WalksQuantity;
     private int Phone;
-    private float WalksQualification;
+    private float WalksRating;
     private boolean WorksInOtherProvince;
     private String Password;
     private int Status;
@@ -136,12 +136,12 @@ public class Caregiver {
         Phone = phone;
     }
 
-    public float getWalksQualification() {
-        return WalksQualification;
+    public float getWalksRating() {
+        return WalksRating;
     }
 
-    public void setWalksQualification(float walksQualification) {
-        WalksQualification = walksQualification;
+    public void setWalksRating(float walksRating) {
+        WalksRating = walksRating;
     }
 
     public boolean getWorksInOtherProvince() {

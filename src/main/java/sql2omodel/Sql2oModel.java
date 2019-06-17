@@ -14,7 +14,7 @@ import org.sql2o.data.Table;
 
 
 
-import java.sql.Date;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -550,6 +550,7 @@ public class Sql2oModel implements Model {
     @Override
     public ObjectNode updateRate(int IdService, int Rate) throws Exception {
         try {
+
             Connection connection = sql2o.beginTransaction();
             Query query = connection.createQuery("SELECT COUNT(IdWalkService) FROM WalkService WHERE IdWalkService = :IdWalkService");
             query.addParameter("IdWalkService", IdService);
@@ -560,7 +561,6 @@ public class Sql2oModel implements Model {
                     "WHERE IdWalkService = :IdWalkService");
             query.addParameter("Rating", Rate);
             query.addParameter("IdWalkService", IdService);
-            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
             query.executeUpdate();
 
             //get caregiver id
@@ -588,59 +588,65 @@ public class Sql2oModel implements Model {
                     "WHERE IdCaregiver = :IdCaregiver AND Rating = 5")
                     .addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
 
+
+
             //update caregiver
             connection.createQuery("UPDATE Caregiver SET WalksRating = :WalksRating,  WalksQuantity = :WalksQuantity " +
                     "WHERE IdCaregiver = :IdCaregiver")
-                    .addParameter("WalksQuantity", walksQuantityCaregiver)
                     .addParameter("WalksRating", averageRating)
+                    .addParameter("WalksQuantity", walksQuantityCaregiver)
                     .addParameter("IdCaregiver", idCaregiver)
                     .executeUpdate();
 
+
             //update pet
-            connection.createQuery("UPDATE Pet SET WalksQuantity = :WalksQuantity"+
+            connection.createQuery("UPDATE Pet SET WalksQuantity = :WalksQuantity "+
                     "WHERE IdPet = :IdPet")
-                    .addParameter("WalksQuantity", walksQuantityCaregiver)
+                    .addParameter("WalksQuantity", walksQuantityPet)
                     .addParameter("IdPet", idPet)
                     .executeUpdate();
 
+
+            int hasBadgeType1 = connection.createQuery("SELECT COUNT(BadgeType) FROM Badge WHERE BadgeType = 1 " +
+                    "AND IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+            int hasBadgeType2 = connection.createQuery("SELECT COUNT(BadgeType) FROM Badge WHERE BadgeType = 2 " +
+                    "AND IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+            int hasBadgeType3 = connection.createQuery("SELECT COUNT(BadgeType) FROM Badge WHERE BadgeType = 3 " +
+                    "AND IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+            int hasBadgeType4 = connection.createQuery("SELECT COUNT(BadgeType) FROM Badge WHERE BadgeType = 4 " +
+                    "AND IdCaregiver = :IdCaregiver").addParameter("IdCaregiver", idCaregiver).executeScalar(Integer.class);
+
+
             //update badges
-            if(walksQuantityFiveStars > 100){
+            if(walksQuantityFiveStars > 100 && hasBadgeType1 == 0){
                 connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
                         "VALUES(:IdCaregiver, 1)")
                         .addParameter("IdCaregiver", idCaregiver)
                         .executeUpdate();
             }
 
-            if(walksQuantityCaregiver > 50){
+            if(walksQuantityCaregiver > 50 && hasBadgeType2 == 0){
                 connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
                         "VALUES(:IdCaregiver, 2)")
                         .addParameter("IdCaregiver", idCaregiver)
                         .executeUpdate();
             }
 
-            if(walksQuantityCaregiver > 100){
+            if(walksQuantityCaregiver > 100 && hasBadgeType3 == 0){
                 connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
                         "VALUES(:IdCaregiver, 3)")
                         .addParameter("IdCaregiver", idCaregiver)
                         .executeUpdate();
             }
 
-            if(walksQuantityCaregiver > 500){
+            if(walksQuantityCaregiver > 500 && hasBadgeType4 == 0){
                 connection.createQuery("INSERT INTO Badge(IdCaregiver, BadgeType) " +
                         "VALUES(:IdCaregiver, 4)")
                         .addParameter("IdCaregiver", idCaregiver)
                         .executeUpdate();
             }
 
-
-
-
-
             connection.commit();
-
-
-
-
 
             ObjectMapper jsonObject = new ObjectMapper();
             ObjectNode objectNode = jsonObject.createObjectNode();
@@ -663,8 +669,8 @@ public class Sql2oModel implements Model {
         try {
             System.out.println(startTime);
             System.out.println(endTime);
-            Date startDate = dateTimeformatter.parse(startTime);
-            Date endDate = dateTimeformatter.parse(endTime);
+            java.util.Date startDate = dateTimeformatter.parse(startTime);
+            java.util.Date endDate = dateTimeformatter.parse(endTime);
             System.out.println(startDate);
             System.out.println(endDate);
             dateDifference = endDate.getTime()-startDate.getTime();
@@ -858,7 +864,7 @@ public class Sql2oModel implements Model {
             Caregiver selectedCaregiver = caregiversAvailableInTimeSlot.get(0);
             float selectedCaregiverScore = 0;
             for (Caregiver caregiver : caregiversAvailableInTimeSlot) {
-                float score = caregiver.getWalksQualification() * 0.5f;
+                float score = caregiver.getWalksRating() * 0.5f;
                 if (caregiver.getIdCanton() == petOwner.getIdCanton()) {
                     score += 0.1;
                 }

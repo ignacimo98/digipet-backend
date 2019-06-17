@@ -38,11 +38,25 @@ public class ServiceHandler {
     }
 
 
-    public static ResponseCreator updateReport(Model model, int idService, String description) {
+    public static ResponseCreator updateReport(Model model, int idService, String requestBody) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            WalkService walkService = mapper.readValue(description, WalkService.class);
-            String jsonString = model.updateReport(idService, walkService.getReportDescription());
+            String description = mapper.readTree(requestBody).get("ReportDescription").asText();
+            String jsonString = model.updateReport(idService, description);
+            return CustomResponse.ok(jsonString);
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
+    public static ResponseCreator updateRate(Model model, int idService, String requestBody) {
+        String jsonString = "";
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            int rate = mapper.readTree(requestBody).get("rating").asInt();
+            jsonString = model.updateRate(idService, rate).get("status").toString();
+
             return CustomResponse.ok(jsonString);
         } catch (Exception e) {
             return CustomResponse.error(404, e.getMessage());
