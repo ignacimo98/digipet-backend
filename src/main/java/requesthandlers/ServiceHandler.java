@@ -27,6 +27,17 @@ public class ServiceHandler {
         }
     }
 
+    public static ResponseCreator getServiceDetailed(Model model, int id) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+
+            return CustomResponse.ok(mapper.writeValueAsString(model.getServiceDetailed(id)));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
+
     public static ResponseCreator getServicePrice(Model model, String requestBody) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);

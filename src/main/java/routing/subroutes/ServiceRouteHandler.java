@@ -26,6 +26,7 @@ public class ServiceRouteHandler extends GenericRouteHandler {
             post("/:id/report", map((req, res) -> ServiceHandler.updateReport(model, Integer.parseInt(req.params(":id")), req.body())));
             post("/:id/rate", map((req, res) -> ServiceHandler.updateRate(model, Integer.parseInt(req.params(":id")), req.body())));
             post("/:id/complaint", map((req, res) -> ServiceHandler.insertComplaint(model, Integer.parseInt(req.params(":id")), req.body())));
+            get("/:id/detailed", map((req, res) -> ServiceHandler.getServiceDetailed(model, Integer.parseInt(req.params(":id")))));
 
 
 

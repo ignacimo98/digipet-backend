@@ -72,6 +72,7 @@ public interface Model {
 
     List getComplaints();
     WalkService getServiceFromId(int IdWalkService) throws Exception;
+    WalkServiceDetailed getServiceDetailed(int IdWalkService) throws Exception;
     String getServicePrice(String StartTime, String EndTime);
     int assignCaregiver(int IdPet, int IdPetOwner, String StartTime, String EndTime, String Location);
     String blockCaregiver(int idCaregiver) throws Exception;

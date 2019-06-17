@@ -586,6 +586,37 @@ public class Sql2oModel implements Model {
     }
 
     @Override
+    public WalkServiceDetailed getServiceDetailed(int IdWalkService) throws Exception {
+
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT W.StartTime, W.EndTime, W.Price, W.OwnerComments, W.PickUpLocation,\n" +
+                "       W.ReportDescription, W.Status AS WalkServiceStatus, W.Rating, C.Name AS StudentName, C.LastName AS StudentLastName,\n" +
+                "       C.Email1 AS EmailStudent, C.Photo AS StudentPhoto, C.WalksQuantity, C.Phone AS PhoneStudent, C.WalksRating, P.Name AS PetName,\n" +
+                "       P.Age, P.IdPet, P.Size, P.PetDescription, PO.Name AS ClientName, PO.LastName AS ClientLastName, PO.Email1 AS EmailClient,\n" +
+                "       PO.Phone AS ClientPhone, PO.Photo AS ClientPhoto FROM WalkService W\n" +
+                "INNER JOIN Caregiver C on W.IdCaregiver = C.IdCaregiver\n" +
+                "INNER JOIN Pet P on W.IdPet = P.IdPet\n" +
+                "INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
+                "WHERE IdWalkService = :IdWalkService");
+
+        query.addParameter("IdWalkService", IdWalkService);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+        List<WalkServiceDetailed> walkService = query.executeAndFetch(WalkServiceDetailed.class);
+
+        if(!walkService.isEmpty()){
+            WalkServiceDetailed result = walkService.get(0);
+            query = connection.createQuery("SELECT Link FROM PetPhoto WHERE IdPet = :IdPet")
+                    .addParameter("IdPet", result.getIdPet());
+            result.setPhotoLinks(query.executeScalarList(String.class));
+            return result;
+        }
+        else{
+            throw new Exception("Servicio no encontrado.");
+        }
+    }
+
+    @Override
     public String getServicePrice(String StartTime, String EndTime) {
         try {
             Connection connection = sql2o.beginTransaction();
@@ -835,12 +866,8 @@ public class Sql2oModel implements Model {
         SimpleDateFormat dateTimeformatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long dateDifference;
         try {
-            System.out.println(startTime);
-            System.out.println(endTime);
             java.util.Date startDate = dateTimeformatter.parse(startTime);
             java.util.Date endDate = dateTimeformatter.parse(endTime);
-            System.out.println(startDate);
-            System.out.println(endDate);
             dateDifference = endDate.getTime()-startDate.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
