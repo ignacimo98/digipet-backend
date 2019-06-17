@@ -31,7 +31,9 @@ public interface Model {
 
     int createAdmin(String Username, String Email, String Password, Boolean Status);
     List getAllAdmins();
+    List getAllCaregivers() throws Exception;
     Administrator getAdminFromId(int IdAdministrator) throws Exception;
+    String setPrice(int Price);
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

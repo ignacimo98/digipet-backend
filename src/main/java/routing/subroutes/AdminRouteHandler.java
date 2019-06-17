@@ -22,6 +22,10 @@ public class AdminRouteHandler extends GenericRouteHandler {
             post("/block/:id", map(((req, res) -> AdministratorHandler.blockCaregiver(model, Integer.parseInt(req.params(":id"))))));
             get("/complaints", map((req, res) -> AdministratorHandler.getComplaints(model)));
             post("/report", map((req, res) -> AdministratorHandler.getReport(model, req.body())));
+            post("/price", map((req, res) -> AdministratorHandler.setPrice(model, req.body())));
+            get("/students", map((req, res) -> AdministratorHandler.getAllCaregivers(model)));
+
+
 
 
 

@@ -215,26 +215,25 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public String setPrice(int Price) {
+        try {
+            Connection connection = sql2o.open();
+            Query query = connection.createQuery("UPDATE Configuration SET Value = :Price WHERE Description = 'Precio'");
+            query.addParameter("Price", Price);
+            query.executeUpdate();
 
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            return objectNode.toString();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return "Error en update";
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,6 +503,36 @@ public class Sql2oModel implements Model {
         else{
             throw new Exception("Servicios no disponibles para este cuidador.");
         }
+    }
+
+    @Override
+    public List getAllCaregivers() throws Exception {
+        try {
+            Connection connection = sql2o.open();
+            Query query = connection.createQuery("SELECT * FROM Caregiver");
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+
+            List<Caregiver> caregivers = query.executeAndFetch(Caregiver.class);
+
+            for (Caregiver caregiver : caregivers) {
+                query = connection.createQuery("SELECT IdProvince FROM ProvinceXCaregiver WHERE IdCaregiver = :IdCaregiver")
+                        .addParameter("IdCaregiver", caregiver.getIdCaregiver());
+                caregiver.setOtherProvincesId(query.executeScalarList(Integer.class));
+
+                query = connection.createQuery("SELECT BadgeType FROM Badge WHERE IdCaregiver = :IdCaregiver")
+                        .addParameter("IdCaregiver", caregiver.getIdCaregiver());
+                caregiver.setBadges(query.executeScalarList(Integer.class));
+
+            }
+            return caregivers;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+
+
     }
 
     @Override
