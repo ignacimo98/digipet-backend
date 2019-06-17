@@ -64,7 +64,8 @@ public class Sql2oModel implements Model {
     @Override
     public List getAllPetsFromOwner(int IdPetOwner) {
         try (Connection connection = sql2o.open()){
-            Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPetOwner = :IdPetOwner");
+            Query query = connection.createQuery("SELECT * FROM Pet WHERE IdPetOwner = :IdPetOwner " +
+                    "AND Status != 0");
             query.addParameter("IdPetOwner", IdPetOwner);
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
             return query.executeAndFetch(Pet.class);
@@ -478,6 +479,32 @@ public class Sql2oModel implements Model {
     }
 
     @Override
+    public String disablePet(int IdPet) throws Exception{
+        Connection connection = sql2o.beginTransaction();
+        Query query = connection.createQuery("SELECT COUNT(IdPet) FROM Pet WHERE IdPet = :IdPet");
+        query.addParameter("IdPet", IdPet);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        int existsPet = query.executeScalar(Integer.class);
+
+        if(existsPet == 1) {
+
+            query = connection.createQuery("UPDATE Pet SET Status = 0 " +
+                    "WHERE IdPet = :IdPet");
+            query.addParameter("IdPet", IdPet);
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            return objectNode.toString();
+        }
+        else{
+            throw new Exception("No se ha encontrado la mascota.");
+        }
+    }
+
+    @Override
     public String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments, String PickUpLocation) {
         try {
             Connection connection = sql2o.beginTransaction();
@@ -500,6 +527,31 @@ public class Sql2oModel implements Model {
             query.addParameter("Price", totalPrice);
             query.addParameter("OwnerComments", OwnerComments);
             query.addParameter("PickUpLocation", PickUpLocation);
+            query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+            query.executeUpdate();
+            connection.commit();
+
+            ObjectMapper jsonObject = new ObjectMapper();
+            ObjectNode objectNode = jsonObject.createObjectNode();
+            objectNode.put("status", "OK");
+            System.out.println(objectNode.toString());
+            return objectNode.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String insertComplaint(int IdService, String Description) throws Exception {
+        try {
+            Connection connection = sql2o.beginTransaction();
+
+            Query query = connection.createQuery("INSERT INTO Complaint(IdWalkService, Description) " +
+                    "VALUES (:IdWalkService, :Description)");
+            query.addParameter("IdWalkService", IdService);
+            query.addParameter("Description", Description);
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
             query.executeUpdate();
             connection.commit();
@@ -908,6 +960,7 @@ public class Sql2oModel implements Model {
         Query query = connection.createQuery("SELECT * \n" +
                 "FROM Caregiver \n" +
                 "WHERE IdCaregiver = :IdCaregiver");
+        query.addParameter("IdCaregiver", idCaregiver);
         query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
         List<Caregiver> caregiver;
         caregiver = query.executeAndFetch(Caregiver.class);
@@ -924,7 +977,11 @@ public class Sql2oModel implements Model {
         query.executeUpdate();
         connection.commit();
 
-        return "El cuidador ha sido bloqueado con éxito";
+        ObjectMapper jsonObject = new ObjectMapper();
+        ObjectNode objectNode = jsonObject.createObjectNode();
+        objectNode.put("status", "OK");
+
+        return objectNode.toString();
     }
 
 

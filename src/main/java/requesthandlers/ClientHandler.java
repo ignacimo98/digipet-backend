@@ -26,4 +26,14 @@ public class ClientHandler {
             return CustomResponse.error(404, e.getMessage());
         }
     }
+
+    public static ResponseCreator getPets(Model model, int id) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return CustomResponse.ok(mapper.writeValueAsString(model.getAllPetsFromOwner(id)));
+        } catch (Exception e) {
+            return CustomResponse.error(404, e.getMessage());
+        }
+    }
 }

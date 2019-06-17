@@ -26,6 +26,20 @@ public class ServiceHandler {
         }
     }
 
+    public static ResponseCreator insertComplaint(Model model, int idService, String requestBody){
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            String description = mapper.readTree(requestBody).get("Description").asText();
+            String jsonString = model.insertComplaint(idService, description);
+
+            return CustomResponse.ok(jsonString);
+
+        } catch (Exception e) {
+            return CustomResponse.error(402, e.getMessage());
+        }
+    }
+
     public static ResponseCreator insertService(Model model, String requestBody){
         ObjectMapper mapper = new ObjectMapper();
 
@@ -59,7 +73,7 @@ public class ServiceHandler {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            int rate = mapper.readTree(requestBody).get("rating").asInt();
+            int rate = mapper.readTree(requestBody).get("Rating").asInt();
             jsonObject = model.updateRate(idService, rate);
             TwitterHandler.postTweet(jsonObject.get("name").asText(), rate);
 

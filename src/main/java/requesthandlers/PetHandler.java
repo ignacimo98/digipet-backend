@@ -36,6 +36,18 @@ public class PetHandler {
         }
     }
 
+    public static ResponseCreator disablePet(Model model, int idPet){
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            String jsonString = model.disablePet(idPet);
+            return CustomResponse.ok(jsonString);
+
+        } catch (Exception e) {
+            return CustomResponse.error(402, e.getMessage());
+        }
+    }
+
     public static ResponseCreator getServices(Model model, int id) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);

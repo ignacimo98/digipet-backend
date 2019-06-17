@@ -23,9 +23,12 @@ public interface Model {
 
 
     String insertPet(int IdPetOwner, String Name, int Age, String Size, String PetDescription, List<String> PhotoLinks);
+    String disablePet(int IdPet) throws Exception;
 
     String insertService(int IdPet, int IdCaregiver, String StartTime, String EndTime, String OwnerComments,
                          String PickUpLocation);
+
+    String insertComplaint(int IdService, String Description) throws Exception;
 
 
     String updateReport(int IdService, String ReportDescription) throws Exception;

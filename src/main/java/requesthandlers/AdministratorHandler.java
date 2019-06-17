@@ -60,11 +60,11 @@ public class AdministratorHandler {
         String message;
         try {
             message = model.blockCaregiver(idCaregiver);
+            return CustomResponse.ok(message);
         } catch (Exception e){
-            e.printStackTrace();
             return CustomResponse.error(300, e.getMessage());
         }
-        return CustomResponse.ok(message);
+
 
     }
 
