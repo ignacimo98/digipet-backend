@@ -4,11 +4,14 @@ import dataobjects.Model;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sql2o.Sql2o;
-import routing.CustomResponse;
 import routing.ResponseCreator;
 import sql2omodel.Sql2oModel;
 
-public class AdministratorHandlerTest {
+import java.util.Random;
+
+import static org.junit.Assert.*;
+
+public class StudentHandlerTest {
     private static Sql2o sql2o = new Sql2o("jdbc:mysql://35.222.98.163:3306/DigiPet", "root", "digipet12345");
     private static Model model;
 
@@ -18,17 +21,12 @@ public class AdministratorHandlerTest {
     }
 
     @Test
-    public void testGetAdmin(){
-        ResponseCreator response = AdministratorHandler.getAdmin(model, 1);
+    public void getCaregiver() {
+        ResponseCreator responseCreator = StudentHandler.getCaregiver(model, 1);
     }
 
     @Test
-    public void getAllAdminsTest(){
-        ResponseCreator response = AdministratorHandler.getAllAdmins(model);
-    }
-
-    @Test
-    public void getAllComplaints(){
-        ResponseCreator response = AdministratorHandler.getComplaints(model);
+    public void getServices() {
+        ResponseCreator responseCreator = StudentHandler.getServices(model, 1);
     }
 }

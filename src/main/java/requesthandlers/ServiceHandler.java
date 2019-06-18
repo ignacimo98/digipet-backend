@@ -1,13 +1,14 @@
 package requesthandlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dataobjects.Model;
 import dataobjects.PetOwner;
+import dataobjects.Schedule;
 import dataobjects.WalkService;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import routing.CustomResponse;
 import routing.ResponseCreator;
 import twitter4j.TwitterHandler;
@@ -135,4 +136,6 @@ public class ServiceHandler {
 
 
     }
+
+
 }

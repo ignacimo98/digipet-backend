@@ -23,6 +23,7 @@ public final class TokenFilter {
         Filter filter = new Filter() {
             @Override
             public void handle(Request request, Response response) throws Exception {
+                System.out.println(request.pathInfo());
                 if (!(request.pathInfo().equals("/login") ||
                         request.pathInfo().equals("/signup/clients") ||
                         request.pathInfo().equals("/signup/students")||

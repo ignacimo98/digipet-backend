@@ -10,8 +10,6 @@ public class LoginHandler {
         try {
             String jsonString = model.getClientIdType(LoginData, Password);
 
-            System.out.println(jsonString);
-
             return CustomResponse.ok(jsonString);
         } catch (Exception e) {
             return CustomResponse.error(401, e.getMessage());

@@ -4,11 +4,13 @@ import dataobjects.Model;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sql2o.Sql2o;
-import routing.CustomResponse;
 import routing.ResponseCreator;
 import sql2omodel.Sql2oModel;
 
-public class AdministratorHandlerTest {
+import static org.junit.Assert.*;
+
+public class PetHandlerTest {
+
     private static Sql2o sql2o = new Sql2o("jdbc:mysql://35.222.98.163:3306/DigiPet", "root", "digipet12345");
     private static Model model;
 
@@ -16,19 +18,18 @@ public class AdministratorHandlerTest {
     public static void beforeClass(){
         model = new Sql2oModel(sql2o);
     }
-
     @Test
-    public void testGetAdmin(){
-        ResponseCreator response = AdministratorHandler.getAdmin(model, 1);
+    public void getPet() {
+        ResponseCreator response = PetHandler.getPet(model, 1);
     }
 
     @Test
-    public void getAllAdminsTest(){
-        ResponseCreator response = AdministratorHandler.getAllAdmins(model);
+    public void getServices() {
+        ResponseCreator response = PetHandler.getServices(model, 1);
     }
 
     @Test
-    public void getAllComplaints(){
-        ResponseCreator response = AdministratorHandler.getComplaints(model);
+    public void insertPet(){
+        ResponseCreator responseCreator = PetHandler.insertPet(model, "{\"Nombre\"=\"Fido\"", 1);
     }
 }

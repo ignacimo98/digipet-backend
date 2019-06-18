@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface Model {
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////                                         Login
     /////
@@ -89,7 +90,7 @@ public interface Model {
 
 
     public String insertHours(int idCaregiver, String startTime, String endTime) throws Exception;
-
+    public List getAllScheduleEntries(int idCaregiver, String datetime);
 
 
 

@@ -19,8 +19,9 @@ public class StudentRouteHandler extends GenericRouteHandler{
             get("", map((req, res) -> StudentHandler.getCaregiver(model, Integer.parseInt(req.attribute("id").toString()))));
             get("/:id", map((req, res) -> StudentHandler.getCaregiver(model, Integer.parseInt(req.params(":id")))));
             get("/:id/services", map((req, res) -> StudentHandler.getServices(model, Integer.parseInt(req.params(":id")))));
-            post("/:id/schedule", map((req, res)-> StudentHandler.insertSchedule(model, req.body())));
             post("/:id/changestatus", map((req, res) -> StudentHandler.changeCaregiverStatus(model, Integer.parseInt(req.params(":id")), req.body())));
+            get("/:id/schedule", map((req, res)->StudentHandler.getSchedulesDateAndIdCaregiver(model, Integer.parseInt(req.params(":id")), req.queryParams("date"))));
+            post("/:id/schedule", map(((req, res) -> StudentHandler.insertSchedule(model, Integer.parseInt(req.params(":id")), req.body()))));
 
 
         });

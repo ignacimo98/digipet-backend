@@ -37,6 +37,7 @@ public class Main implements SparkApplication {
 
     @Override
     public void init() {
+        port(8080);
 
         String url = System.getProperty("cloudsql");
 
@@ -56,12 +57,7 @@ public class Main implements SparkApplication {
 
 //        Sql2o sql2o = new Sql2o(url, "root", "digipet12345");
         Model model = new Sql2oModel(sql2o);
-        get("/", (request, response)
-                -> "Hello from SparkJava running on GAE Standard Java8 runtime.");
 
-        get("/hello/:name", (request, response) -> {
-            return "SparkJava running on GAE Java8 says: Hello: " + request.params(":name");
-        });
 
         Application app = new Application(model);
         app.init();

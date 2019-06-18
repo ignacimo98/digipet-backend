@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import dataobjects.Administrator;
 import dataobjects.Model;
 import dataobjects.ReportEntry;
@@ -39,8 +38,6 @@ public class AdministratorHandler {
             e.printStackTrace();
             jsonString = "{}";
         }
-
-        System.out.println(jsonString);
         return  CustomResponse.ok(jsonString);
     }
 

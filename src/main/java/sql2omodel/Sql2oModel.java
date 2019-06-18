@@ -20,10 +20,11 @@ import java.util.*;
 public class Sql2oModel implements Model {
     private Sql2o sql2o;
 
-    public static boolean timeForNewCaregiver = false;
+    public boolean timeForNewCaregiver;
 
     public Sql2oModel(Sql2o sql2o){
         this.sql2o = sql2o;
+        this.timeForNewCaregiver = false;
     }
 
 
@@ -311,7 +312,7 @@ public class Sql2oModel implements Model {
         query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
         int existsPetOwner = query.executeScalar(Integer.class);
 
-        if(existsPetOwner == 1) {
+        if(existsPetOwner >= 1) {
 
             query = connection.createQuery("UPDATE PetOwner SET Status = :Status " +
                     "WHERE IdPetOwner = :IdPetOwner");
@@ -755,6 +756,7 @@ public class Sql2oModel implements Model {
             ObjectNode objectNode = jsonObject.createObjectNode();
             objectNode.put("status", "OK");
             System.out.println(objectNode.toString());
+            timeForNewCaregiver = !timeForNewCaregiver;
             return objectNode.toString();
 
         } catch (Exception e) {
@@ -977,7 +979,7 @@ public class Sql2oModel implements Model {
             query = connection.createQuery("SELECT WalkService.*\n" +
                     "FROM WalkService\n" +
                     "INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
-                    "WHERE DATE StartTime = :StartTime AND P.IdPetOwner = :IdPetOwner;");
+                    "WHERE DATE(StartTime) = DATE(:StartTime) AND P.IdPetOwner = :IdPetOwner;");
             query.addParameter("StartTime", startTime);
             query.addParameter("IdPetOwner", idPetOwner);
             query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
@@ -998,28 +1000,31 @@ public class Sql2oModel implements Model {
             }
 
             query = connection.createQuery(
-                    "SELECT IF(LessAssignedCaregiver.WalkAmount < 3, LessAssignedCaregiver.IdCaregiver, 0) AS IdCaregiver\n" +
+                    "SELECT FinalLessAssignedCaregiver.IdCaregiver\n" +
                             "FROM (\n" +
-                            "         SELECT count(IdWalkService) AS WalkAmount, IdCaregiver\n" +
-                            "         FROM WalkService\n" +
-                            "             INNER JOIN Caregiver C on WalkService.IdCaregiver = C.IdCaregiver\n" +
-                            "             INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
-                            "             INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
-                            "         WHERE WalkService.StartTime <= :StartTime\n" +
-                            "             AND WalkService.EndTime >= :EndTime\n" +
-                            "             AND P.IdPetOwner = :IdPetOwner \n" +
-                            "             AND C.Status = 1\n" +
-                            "         GROUP BY PO.IdPetOwner, IdCaregiver\n" +
-                            "         ORDER BY WalkAmount ASC\n" +
+                            "         SELECT IF(LessAssignedCaregiver.WalkAmount < 3, LessAssignedCaregiver.IdCaregiver, 0) AS IdCaregiver\n" +
+                            "         FROM (\n" +
+                            "                  SELECT count(IdWalkService) AS WalkAmount, C.IdCaregiver\n" +
+                            "                  FROM WalkService\n" +
+                            "                           INNER JOIN Caregiver C on WalkService.IdCaregiver = C.IdCaregiver\n" +
+                            "                           INNER JOIN Pet P on WalkService.IdPet = P.IdPet\n" +
+                            "                           INNER JOIN PetOwner PO on P.IdPetOwner = PO.IdPetOwner\n" +
+                            "                  WHERE WalkService.StartTime <= :StartTime\n" +
+                            "                    AND WalkService.EndTime >= :EndTime\n" +
+                            "                    AND P.IdPetOwner = :IdPetOwner\n" +
+                            "                    AND C.Status = 1\n" +
+                            "                  GROUP BY PO.IdPetOwner, IdCaregiver\n" +
+                            "                  ORDER BY WalkAmount ASC\n" +
+                            "                  LIMIT 1\n" +
+                            "              ) AS LessAssignedCaregiver\n" +
                             "         LIMIT 1\n" +
-                            "         ) AS LessAssignedCaregiver\n" +
-                            "LIMIT 1;"
+                            "     ) AS FinalLessAssignedCaregiver;"
             );
             query.addParameter("StartTime", startTime);
             query.addParameter("EndTime", endTime);
             query.addParameter("IdPetOwner", idPetOwner);
 
-            int idCaregiver = query.executeScalar(Integer.class);
+            int idCaregiver = query.executeAndFetchFirst(Integer.class);
 
 
 //      Is there a caregiver assigned to less than 3 of the owner's pets?
@@ -1075,8 +1080,34 @@ public class Sql2oModel implements Model {
         query.addParameter("EndTime", endTime);
         query.addParameter("RequiredTimeSlots", timeSlots);
         query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
-        List<Caregiver> caregiversAvailableInTimeSlot;
-        caregiversAvailableInTimeSlot = query.executeAndFetch(Caregiver.class);
+        List<Caregiver> caregiversAvailableInTimeSlotAccordingToSchedule;
+        caregiversAvailableInTimeSlotAccordingToSchedule = query.executeAndFetch(Caregiver.class);
+
+        query = connection.createQuery("SELECT Caregiver.*\n" +
+                "FROM Caregiver\n" +
+                "INNER JOIN WalkService WS on Caregiver.IdCaregiver = WS.IdCaregiver\n" +
+                "WHERE (StartTime <= :StartTime AND EndTime >= :StartTime) OR (StartTime <= :EndTime AND EndTime >= :EndTime) ;");
+        query.addParameter("StartTime", startTime);
+        query.addParameter("EndTime", endTime);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<Caregiver> caregiversAlreadyAssignedInTimeSlot;
+        caregiversAlreadyAssignedInTimeSlot = query.executeAndFetch(Caregiver.class);
+
+        ArrayList<Caregiver> caregiversAvailableInTimeSlot = new ArrayList<>();
+
+        for (Caregiver caregiver :
+                caregiversAvailableInTimeSlotAccordingToSchedule) {
+            boolean busy = false;
+            for (Caregiver caregiverAlreadyAssigned : caregiversAlreadyAssignedInTimeSlot){
+                if (caregiver.getIdCaregiver() == caregiverAlreadyAssigned.getIdCaregiver()){
+                    busy = true;
+                    break;
+                }
+            }
+            if (!busy){
+                caregiversAvailableInTimeSlot.add(caregiver);
+            }
+        }
 
         if (timeForNewCaregiver){
             boolean newCaregiversAvailable = false;
@@ -1295,6 +1326,19 @@ public class Sql2oModel implements Model {
         objectNode.put("status", "OK");
 
         return objectNode.toString();
+    }
+
+    public List getAllScheduleEntries(int idCaregiver, String datetime) {
+        Connection connection = sql2o.open();
+        Query query = connection.createQuery("SELECT * FROM Schedule WHERE IdCaregiver = :IdCaregiver " +
+                "AND DATE(StartTime) = DATE(:StartTime)"
+        );
+        query.addParameter("IdCaregiver", idCaregiver);
+        query.addParameter("StartTime", datetime);
+        query.setResultSetHandlerFactoryBuilder(new SfmResultSetHandlerFactoryBuilder());
+        List<Schedule> schedules = query.executeAndFetch(Schedule.class);
+
+        return schedules;
     }
 
 
